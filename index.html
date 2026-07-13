@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogicLab — Digital Electronics Virtual Lab</title>
+<meta name="description" content="An interactive virtual lab for logic gates, K-Maps, flip-flops, multiplexers, encoders, adders, timing diagrams and circuit building.">
+<meta name="theme-color" content="#0B1120">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+<!-- ================= NAV ================= -->
+<header class="nav-wrap">
+  <nav class="navbar" aria-label="Primary">
+    <a href="#home" class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="3" y="10" width="8" height="12" rx="2"/>
+        <rect x="21" y="10" width="8" height="12" rx="2"/>
+        <path d="M11 13H15V7H21" fill="none" stroke-width="2"/>
+        <path d="M11 19H15V25H21" fill="none" stroke-width="2"/>
+        <circle cx="16" cy="7" r="1.6"/>
+        <circle cx="16" cy="25" r="1.6"/>
+      </svg>
+      <span>Logic<b>Lab</b></span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-search">
+      <input type="search" id="searchInput" placeholder="Search gates, topics, expressions…" aria-label="Search">
+      <div class="search-results" id="searchResults" hidden></div>
+    </div>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#gates">Gates</a></li>
+      <li><a href="#kmap">K-Map</a></li>
+      <li><a href="#flipflops">Flip-Flops</a></li>
+      <li><a href="#muxdemux">MUX/DEMUX</a></li>
+      <li><a href="#encoders">Enc/Dec</a></li>
+      <li><a href="#adders">Adders</a></li>
+      <li><a href="#timing">Timing</a></li>
+      <li><a href="#circuit">Circuit</a></li>
+      <li><a href="#calculator">Calculator</a></li>
+      <li><a href="#learn">Learn</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="true">
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><g stroke-width="2"><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></g></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+    </button>
+  </nav>
+</header>
+
+<main>
+<!-- ================= HERO ================= -->
+<section id="home" class="hero">
+  <div class="hero-particles" id="heroParticles" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Digital Electronics Virtual Lab</p>
+      <h1>Build intuition for <span class="grad-text">digital logic</span>, one truth table at a time.</h1>
+      <p class="hero-sub">Simulate gates, minimize Boolean expressions with Karnaugh maps, drive flip‑flops through a clock, wire up multiplexers, and watch signals actually propagate — all in your browser, fully offline.</p>
+      <div class="hero-cta">
+        <a href="#gates" class="btn btn-primary">Start Simulation</a>
+        <a href="#learn" class="btn btn-ghost">Explore the Learning Center</a>
+      </div>
+      <div class="hero-stats">
+        <div><span>8</span>Logic gates</div>
+        <div><span>13</span>Interactive labs</div>
+        <div><span>0</span>Servers required</div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <svg viewBox="0 0 480 420" class="chip-svg">
+        <defs>
+          <linearGradient id="traceGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3B82F6"/>
+            <stop offset="100%" stop-color="#22D3EE"/>
+          </linearGradient>
+        </defs>
+        <g class="traces">
+          <path d="M20 60 H150" /> <path d="M20 110 H150" /> <path d="M20 160 H150" />
+          <path d="M20 210 H150" /> <path d="M20 260 H150" /> <path d="M20 310 H150" />
+          <path d="M330 60 H460" /> <path d="M330 110 H460" /> <path d="M330 160 H460" />
+          <path d="M330 210 H460" /> <path d="M330 260 H460" /> <path d="M330 310 H460" />
+          <path d="M100 20 V60" /> <path d="M180 20 V60" /> <path d="M260 20 V60" /> <path d="M340 20 V60" />
+          <path d="M100 400 V360" /> <path d="M180 400 V360" /> <path d="M260 400 V360" /> <path d="M340 400 V360" />
+        </g>
+        <rect x="150" y="60" width="180" height="300" rx="18" class="chip-body"/>
+        <text x="240" y="220" text-anchor="middle" class="chip-label">LOGICLAB</text>
+        <text x="240" y="242" text-anchor="middle" class="chip-sub">0110 1001</text>
+        <circle class="pulse-dot" r="4"><animateMotion dur="3.4s" repeatCount="indefinite" path="M20 60 H150"/></circle>
+        <circle class="pulse-dot" r="4"><animateMotion dur="2.6s" begin="0.6s" repeatCount="indefinite" path="M20 210 H150"/></circle>
+        <circle class="pulse-dot" r="4"><animateMotion dur="3s" begin="1.1s" repeatCount="indefinite" path="M330 160 H460"/></circle>
+        <circle class="pulse-dot" r="4"><animateMotion dur="2.2s" begin="0.3s" repeatCount="indefinite" path="M330 310 H460"/></circle>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LOGIC GATES ================= -->
+<section id="gates" class="section">
+  <div class="section-head">
+    <p class="eyebrow">01 — Combinational Basics</p>
+    <h2>Logic Gate Simulator</h2>
+    <p class="section-sub">Toggle the inputs and watch the LED, truth table and Boolean expression respond live.</p>
+  </div>
+
+  <div class="gate-select" id="gateSelect" role="tablist" aria-label="Choose a logic gate"></div>
+
+  <div class="glass panel gate-panel">
+    <div class="gate-info">
+      <div class="gate-symbol" id="gateSymbol"></div>
+      <div>
+        <h3 id="gateName">AND Gate</h3>
+        <p id="gateDesc" class="muted"></p>
+        <p class="equation">Y = <span id="gateEquation">A · B</span></p>
+      </div>
+    </div>
+
+    <div class="gate-io">
+      <div class="io-inputs" id="gateInputs"></div>
+      <div class="io-arrow">→</div>
+      <div class="io-output">
+        <div class="led" id="gateLed" data-on="0"></div>
+        <span class="io-label">Output Y</span>
+        <span class="io-value" id="gateOutVal">0</span>
+      </div>
+    </div>
+    <p class="hint">Keyboard shortcuts: press <kbd>A</kbd> / <kbd>B</kbd> to toggle inputs.</p>
+  </div>
+
+  <div class="glass panel">
+    <div class="panel-head">
+      <h3>Truth Table</h3>
+      <button class="btn btn-small" id="downloadCsv">Download CSV</button>
+    </div>
+    <div class="table-wrap"><table id="truthTable"></table></div>
+  </div>
+</section>
+
+<!-- ================= K-MAP ================= -->
+<section id="kmap" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">02 — Simplification</p>
+    <h2>Karnaugh Map Solver</h2>
+    <p class="section-sub">Mark the outputs for each minterm, then let the lab group adjacent 1s and derive a minimal SOP expression using Quine–McCluskey.</p>
+  </div>
+
+  <div class="glass panel">
+    <div class="kmap-controls">
+      <label for="kmapVars">Variables</label>
+      <select id="kmapVars">
+        <option value="2">2 variables (A, B)</option>
+        <option value="3">3 variables (A, B, C)</option>
+        <option value="4" selected>4 variables (A, B, C, D)</option>
+      </select>
+      <button class="btn btn-small" id="kmapSimplify">Simplify</button>
+      <button class="btn btn-small btn-ghost" id="kmapClear">Clear</button>
+    </div>
+
+    <div class="kmap-layout">
+      <div class="kmap-minterms" id="kmapMinterms" aria-label="Minterm toggles"></div>
+      <div class="kmap-grid-wrap">
+        <div id="kmapGrid" class="kmap-grid"></div>
+      </div>
+    </div>
+
+    <div class="kmap-result">
+      <p class="equation">Simplified: <span id="kmapExpr">Y = —</span></p>
+      <div id="kmapGroups" class="kmap-groups"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FLIP-FLOPS ================= -->
+<section id="flipflops" class="section">
+  <div class="section-head">
+    <p class="eyebrow">03 — Sequential Logic</p>
+    <h2>Flip-Flop Lab</h2>
+    <p class="section-sub">Drive SR, JK, D and T flip-flops with a manual clock and watch the state — and the waveform — update.</p>
+  </div>
+
+  <div class="gate-select" id="ffSelect" role="tablist" aria-label="Choose a flip-flop"></div>
+
+  <div class="glass panel">
+    <div class="ff-layout">
+      <div class="ff-controls" id="ffControls"></div>
+      <div class="ff-state">
+        <div class="ff-q">
+          <div class="led" id="ffQLed" data-on="0"></div>
+          <span>Q</span>
+        </div>
+        <div class="ff-q">
+          <div class="led" id="ffQnLed" data-on="1"></div>
+          <span>Q'</span>
+        </div>
+        <button class="btn btn-primary" id="ffClock">⏱ Clock Pulse</button>
+        <button class="btn btn-ghost btn-small" id="ffReset">Reset</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table id="ffTruthTable"></table></div>
+    <div class="timing-wrap">
+      <h4>Waveform</h4>
+      <canvas id="ffTimingCanvas" width="900" height="160" role="img" aria-label="Flip-flop timing diagram"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MUX / DEMUX ================= -->
+<section id="muxdemux" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">04 — Data Selection</p>
+    <h2>Multiplexer &amp; Demultiplexer</h2>
+    <p class="section-sub">Route data lines using select bits, just like a real MUX/DEMUX IC.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="glass panel">
+      <div class="panel-head"><h3>Multiplexer</h3>
+        <select id="muxSize"><option value="2">2:1 MUX</option><option value="4" selected>4:1 MUX</option></select>
+      </div>
+      <div id="muxInputs" class="io-inputs"></div>
+      <div id="muxSelects" class="io-inputs"></div>
+      <div class="io-output">
+        <div class="led" id="muxLed" data-on="0"></div>
+        <span class="io-label">Output Y</span>
+        <span class="io-value" id="muxOutVal">0</span>
+      </div>
+    </div>
+
+    <div class="glass panel">
+      <div class="panel-head"><h3>Demultiplexer</h3>
+        <select id="demuxSize"><option value="2">1:2 DEMUX</option><option value="4" selected>1:4 DEMUX</option></select>
+      </div>
+      <div id="demuxInputs" class="io-inputs"></div>
+      <div id="demuxSelects" class="io-inputs"></div>
+      <div class="io-output" id="demuxOutputs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENCODER / DECODER ================= -->
+<section id="encoders" class="section">
+  <div class="section-head">
+    <p class="eyebrow">05 — Code Conversion</p>
+    <h2>Encoder &amp; Decoder</h2>
+    <p class="section-sub">A 4-to-2 priority-free encoder and a 2-to-4 decoder with enable, side by side.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="glass panel">
+      <div class="panel-head"><h3>4:2 Encoder</h3></div>
+      <p class="muted small">Activate exactly one input line at a time.</p>
+      <div id="encInputs" class="io-inputs"></div>
+      <div class="io-output" id="encOutputs"></div>
+    </div>
+    <div class="glass panel">
+      <div class="panel-head"><h3>2:4 Decoder</h3></div>
+      <div id="decInputs" class="io-inputs"></div>
+      <div class="io-output" id="decOutputs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ADDERS ================= -->
+<section id="adders" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">06 — Arithmetic Circuits</p>
+    <h2>Half &amp; Full Adder</h2>
+  </div>
+  <div class="two-col">
+    <div class="glass panel">
+      <div class="panel-head"><h3>Half Adder</h3></div>
+      <div id="haInputs" class="io-inputs"></div>
+      <div class="io-output" id="haOutputs"></div>
+      <p class="equation">Sum = A ⊕ B &nbsp;·&nbsp; Carry = A · B</p>
+      <div class="table-wrap"><table id="haTable"></table></div>
+    </div>
+    <div class="glass panel">
+      <div class="panel-head"><h3>Full Adder</h3></div>
+      <div id="faInputs" class="io-inputs"></div>
+      <div class="io-output" id="faOutputs"></div>
+      <p class="equation">Sum = A ⊕ B ⊕ Cin &nbsp;·&nbsp; Cout = AB + BCin + ACin</p>
+      <div class="table-wrap"><table id="faTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIMING / PROPAGATION DELAY ================= -->
+<section id="timing" class="section">
+  <div class="section-head">
+    <p class="eyebrow">07 — Signal Behaviour</p>
+    <h2>Propagation Delay Visualizer</h2>
+    <p class="section-sub">Real gates never switch instantly. Flip input A and watch the signal physically travel through the gate before the LED responds.</p>
+  </div>
+
+  <div class="glass panel">
+    <div class="delay-controls">
+      <label for="delayGate">Gate</label>
+      <select id="delayGate"></select>
+      <label for="delayNs">Delay</label>
+      <input type="range" id="delayNs" min="50" max="1500" step="50" value="400">
+      <span id="delayNsLabel">400 ns</span>
+      <button class="btn btn-primary btn-small" id="delayFire">Toggle Input A</button>
+    </div>
+    <svg id="delaySvg" viewBox="0 0 700 180" class="delay-svg" role="img" aria-label="Propagation delay animation"></svg>
+    <p class="muted small" id="delayStatus">Signal settled.</p>
+  </div>
+</section>
+
+<!-- ================= CIRCUIT BUILDER ================= -->
+<section id="circuit" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">08 — Build Freely</p>
+    <h2>Circuit Builder</h2>
+    <p class="section-sub">Drag gates onto the canvas, click a source port then a destination port to wire them, then simulate.</p>
+  </div>
+
+  <div class="glass panel circuit-panel">
+    <div class="circuit-palette" id="circuitPalette"></div>
+    <div class="circuit-toolbar">
+      <button class="btn btn-primary btn-small" id="circuitSimulate">▶ Simulate</button>
+      <button class="btn btn-small btn-ghost" id="circuitDeleteMode">🗑 Delete Mode</button>
+      <button class="btn btn-small btn-ghost" id="circuitReset">Reset</button>
+      <button class="btn btn-small btn-ghost" id="circuitExport">Export JSON</button>
+      <label class="btn btn-small btn-ghost file-btn">Import JSON<input type="file" id="circuitImport" accept="application/json" hidden></label>
+    </div>
+    <div class="circuit-canvas-wrap">
+      <svg id="circuitWires" class="circuit-wires"></svg>
+      <div id="circuitCanvas" class="circuit-canvas"></div>
+    </div>
+    <p class="muted small" id="circuitHint">Tip: click an output port (right, orange) then an input port (left, blue) to connect them.</p>
+  </div>
+</section>
+
+<!-- ================= BINARY CALCULATOR ================= -->
+<section id="calculator" class="section">
+  <div class="section-head">
+    <p class="eyebrow">09 — Number Systems</p>
+    <h2>Binary Calculator</h2>
+  </div>
+  <div class="glass panel calc-panel">
+    <div class="calc-tabs" id="calcTabs">
+      <button class="calc-tab active" data-mode="convert">Convert</button>
+      <button class="calc-tab" data-mode="arith">Arithmetic</button>
+    </div>
+
+    <div id="calcConvert" class="calc-body">
+      <input type="text" id="calcInput" placeholder="Enter a value…" inputmode="text">
+      <select id="calcInputBase">
+        <option value="10">Decimal</option>
+        <option value="2">Binary</option>
+        <option value="16">Hexadecimal</option>
+        <option value="8">Octal</option>
+      </select>
+      <div class="calc-results" id="calcResults"></div>
+    </div>
+
+    <div id="calcArith" class="calc-body" hidden>
+      <input type="text" id="arithA" placeholder="Binary A e.g. 1011">
+      <select id="arithOp">
+        <option value="+">+ Add</option>
+        <option value="-">− Subtract</option>
+        <option value="*">× Multiply</option>
+        <option value="/">÷ Divide</option>
+      </select>
+      <input type="text" id="arithB" placeholder="Binary B e.g. 0110">
+      <button class="btn btn-primary btn-small" id="arithGo">Calculate</button>
+      <div class="calc-results" id="arithResults"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEARNING CENTER ================= -->
+<section id="learn" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">10 — Reference</p>
+    <h2>Learning Center</h2>
+  </div>
+  <div class="learn-grid" id="learnGrid"></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="quiz" class="section">
+  <div class="section-head">
+    <p class="eyebrow">11 — Test Yourself</p>
+    <h2>Digital Logic Quiz</h2>
+  </div>
+  <div class="glass panel quiz-panel">
+    <div id="quizIntro">
+      <p>15 randomized questions covering gates, number systems and sequential logic.</p>
+      <button class="btn btn-primary" id="quizStart">Start Quiz</button>
+    </div>
+    <div id="quizBody" hidden>
+      <div class="quiz-top">
+        <div class="progress-bar"><div class="progress-fill" id="quizProgress"></div></div>
+        <span id="quizCounter">1 / 15</span>
+        <span id="quizTimer">30s</span>
+      </div>
+      <h3 id="quizQuestion"></h3>
+      <div id="quizOptions" class="quiz-options"></div>
+      <p id="quizExplain" class="quiz-explain" hidden></p>
+      <button class="btn btn-primary btn-small" id="quizNext" hidden>Next →</button>
+    </div>
+    <div id="quizResult" hidden>
+      <h3>Score: <span id="quizScore"></span> / 15</h3>
+      <p id="quizVerdict"></p>
+      <button class="btn btn-primary btn-small" id="quizRestart">Restart Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">About</p>
+    <h2>Why LogicLab</h2>
+  </div>
+  <div class="about-grid">
+    <div class="glass panel">
+      <h3>Built for learning by doing</h3>
+      <p class="muted">LogicLab turns first-semester digital electronics theory into something you can click, drag and watch respond in real time — no lab kit, breadboard or backend required. Every simulator runs entirely in your browser and keeps working offline once loaded.</p>
+    </div>
+    <div class="glass panel">
+      <h3>Under the hood</h3>
+      <ul class="plain-list">
+        <li>Semantic HTML5, hand-written CSS3, vanilla ES6 — no frameworks</li>
+        <li>Quine–McCluskey based K-Map minimizer</li>
+        <li>Custom event-driven circuit evaluation engine</li>
+        <li>Installable as a Progressive Web App</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="section">
+  <div class="section-head">
+    <p class="eyebrow">Contact</p>
+    <h2>Get in touch</h2>
+  </div>
+  <div class="glass panel contact-panel">
+    <form id="contactForm" onsubmit="return false;">
+      <label for="cName">Name</label>
+      <input type="text" id="cName" required>
+      <label for="cEmail">Email</label>
+      <input type="email" id="cEmail" required>
+      <label for="cMsg">Message</label>
+      <textarea id="cMsg" rows="4" required></textarea>
+      <button class="btn btn-primary" id="cSend">Send Message</button>
+      <p class="muted small" id="cStatus" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="#home" class="brand"><span>Logic<b>Lab</b></span></a>
+      <p class="muted small">An offline-first digital electronics virtual lab.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#gates">Gates</a>
+      <a href="#kmap">K-Map</a>
+      <a href="#circuit">Circuit Builder</a>
+      <a href="#learn">Learning Center</a>
+    </div>
+    <p class="muted small">© 2026 LogicLab. Built for learning purposes.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

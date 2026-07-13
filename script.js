@@ -167,14 +167,12 @@ const GateSim = (() => {
   const tableEl = $('#truthTable');
 
   Object.keys(GATES).forEach(type => {
-    const b = document.createElement('button');
-    b.textContent = type;
-    b.dataset.type = type;
-    b.setAttribute('role', 'tab');
-    if (type === current) b.classList.add('active');
-    b.addEventListener('click', () => { current = type; render(); });
-    tabsEl.appendChild(b);
+    const o = document.createElement('option');
+    o.value = type; o.textContent = type + ' Gate';
+    if (type === current) o.selected = true;
+    tabsEl.appendChild(o);
   });
+  tabsEl.addEventListener('change', () => { current = tabsEl.value; render(); });
 
   function computeOutput() {
     const g = GATES[current];
@@ -221,7 +219,7 @@ const GateSim = (() => {
   }
 
   function render() {
-    $$('#gateSelect button').forEach(b => b.classList.toggle('active', b.dataset.type === current));
+    tabsEl.value = current;
     symbolEl.innerHTML = gateSymbolSVG(current);
     nameEl.textContent = current.charAt(0) + current.slice(1).toLowerCase() + ' Gate';
     descEl.textContent = GATE_DESC[current];
@@ -424,16 +422,15 @@ const FlipFlopLab = (() => {
   };
 
   types.forEach(t => {
-    const b = document.createElement('button');
-    b.textContent = t + ' Flip-Flop';
-    b.dataset.type = t;
-    if (t === current) b.classList.add('active');
-    b.addEventListener('click', () => { current = t; history = []; renderControls(); renderTable(); drawTiming(); });
-    tabsEl.appendChild(b);
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t + ' Flip-Flop';
+    if (t === current) o.selected = true;
+    tabsEl.appendChild(o);
   });
+  tabsEl.addEventListener('change', () => { current = tabsEl.value; history = []; renderControls(); renderTable(); drawTiming(); });
 
   function renderControls() {
-    $$('#ffSelect button').forEach(b => b.classList.toggle('active', b.dataset.type === current));
+    tabsEl.value = current;
     controlsEl.innerHTML = '';
     const pairs = { SR: ['S','R'], JK: ['J','K'], D: ['D'], T: ['T'] }[current];
     pairs.forEach(name => {
@@ -1092,6 +1089,8 @@ const QUIZ_QUESTIONS = [
 
 const Quiz = (() => {
   let order = [], idx = 0, score = 0, timer = null, timeLeft = 30;
+  let currentOptions = []; // [{text, correct}] — reshuffled every question
+  const LETTERS = ['A','B','C','D','E','F'];
   const introEl = $('#quizIntro'), bodyEl = $('#quizBody'), resultEl = $('#quizResult');
   const qEl = $('#quizQuestion'), optsEl = $('#quizOptions'), explainEl = $('#quizExplain');
   const nextBtn = $('#quizNext'), progressEl = $('#quizProgress'), counterEl = $('#quizCounter'), timerEl = $('#quizTimer');
@@ -1115,9 +1114,17 @@ const Quiz = (() => {
     progressEl.style.width = `${(idx/QUIZ_QUESTIONS.length)*100}%`;
     optsEl.innerHTML = '';
     explainEl.hidden = true; nextBtn.hidden = true;
-    q.o.forEach((opt, i) => {
+
+    // shuffle the answer options themselves, not just question order
+    currentOptions = shuffle(q.o.map((text, i) => ({ text, correct: i === q.a })));
+    currentOptions.forEach((opt, i) => {
       const b = document.createElement('button');
-      b.textContent = opt;
+      const badge = document.createElement('span');
+      badge.className = 'opt-badge';
+      badge.textContent = LETTERS[i];
+      const label = document.createElement('span');
+      label.textContent = opt.text;
+      b.append(badge, label);
       b.addEventListener('click', () => answer(i));
       optsEl.appendChild(b);
     });
@@ -1129,15 +1136,14 @@ const Quiz = (() => {
 
   function answer(choice) {
     clearInterval(timer);
-    const q = QUIZ_QUESTIONS[order[idx]];
     $$('#quizOptions button').forEach((b,i) => {
       b.disabled = true;
-      if (i === q.a) b.classList.add('correct');
+      if (currentOptions[i].correct) b.classList.add('correct');
       else if (i === choice) b.classList.add('wrong');
     });
-    if (choice === q.a) score++;
+    if (choice >= 0 && currentOptions[choice].correct) score++;
     explainEl.hidden = false;
-    explainEl.textContent = q.ex;
+    explainEl.textContent = QUIZ_QUESTIONS[order[idx]].ex;
     nextBtn.hidden = false;
   }
 
@@ -1158,22 +1164,7 @@ const Quiz = (() => {
 })();
 
 /* =========================================================
-   12. CONTACT FORM (client-side only, no backend)
-   ========================================================= */
-(function contact(){
-  $('#cSend').addEventListener('click', () => {
-    const name = $('#cName').value.trim();
-    const email = $('#cEmail').value.trim();
-    const msg = $('#cMsg').value.trim();
-    const status = $('#cStatus');
-    if (!name || !email || !msg) { status.textContent = 'Please fill in every field.'; return; }
-    status.textContent = `Thanks, ${name} — this demo form doesn't send data anywhere (no backend), but your message was validated successfully.`;
-    $('#contactForm').reset();
-  });
-})();
-
-/* =========================================================
-   13. PWA — SERVICE WORKER REGISTRATION
+   12. PWA — SERVICE WORKER REGISTRATION
    ========================================================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

@@ -54,7 +54,6 @@
       <li><a href="#learn">Learn</a></li>
       <li><a href="#quiz">Quiz</a></li>
       <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
     </ul>
 
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="true">
@@ -119,7 +118,10 @@
     <p class="section-sub">Toggle the inputs and watch the LED, truth table and Boolean expression respond live.</p>
   </div>
 
-  <div class="gate-select" id="gateSelect" role="tablist" aria-label="Choose a logic gate"></div>
+  <div class="sim-select-wrap">
+    <label for="gateSelect">Choose a logic gate</label>
+    <select id="gateSelect" aria-label="Choose a logic gate"></select>
+  </div>
 
   <div class="glass panel gate-panel">
     <div class="gate-info">
@@ -194,7 +196,10 @@
     <p class="section-sub">Drive SR, JK, D and T flip-flops with a manual clock and watch the state — and the waveform — update.</p>
   </div>
 
-  <div class="gate-select" id="ffSelect" role="tablist" aria-label="Choose a flip-flop"></div>
+  <div class="sim-select-wrap">
+    <label for="ffSelect">Choose a flip-flop</label>
+    <select id="ffSelect" aria-label="Choose a flip-flop"></select>
+  </div>
 
   <div class="glass panel">
     <div class="ff-layout">
@@ -447,25 +452,6 @@
   </div>
 </section>
 
-<!-- ================= CONTACT ================= -->
-<section id="contact" class="section">
-  <div class="section-head">
-    <p class="eyebrow">Contact</p>
-    <h2>Get in touch</h2>
-  </div>
-  <div class="glass panel contact-panel">
-    <form id="contactForm" onsubmit="return false;">
-      <label for="cName">Name</label>
-      <input type="text" id="cName" required>
-      <label for="cEmail">Email</label>
-      <input type="email" id="cEmail" required>
-      <label for="cMsg">Message</label>
-      <textarea id="cMsg" rows="4" required></textarea>
-      <button class="btn btn-primary" id="cSend">Send Message</button>
-      <p class="muted small" id="cStatus" role="status"></p>
-    </form>
-  </div>
-</section>
 </main>
 
 <footer class="footer">

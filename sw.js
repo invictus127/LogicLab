@@ -1,5 +1,5 @@
 /* LogicLab service worker — cache-first, offline-first */
-const CACHE_NAME = 'logiclab-cache-v3';
+const CACHE_NAME = 'logiclab-cache-v4';
 const ASSETS = [
   './',
   './index.html',

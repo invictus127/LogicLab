@@ -43,19 +43,32 @@
 
     <ul class="nav-links" id="navLinks">
       <li><a href="#home">Home</a></li>
-      <li><a href="#gates">Gates</a></li>
-      <li><a href="#kmap">K-Map</a></li>
-      <li><a href="#flipflops">Flip-Flops</a></li>
-      <li><a href="#muxdemux">MUX/DEMUX</a></li>
-      <li><a href="#encoders">Enc/Dec</a></li>
-      <li><a href="#adders">Adders</a></li>
-      <li><a href="#timing">Timing</a></li>
-      <li><a href="#circuit">Circuit</a></li>
-      <li><a href="#calculator">Calculator</a></li>
-      <li><a href="#learn">Learn</a></li>
-      <li><a href="#quiz">Quiz</a></li>
-      <li><a href="#challenge">Challenge</a></li>
-      <li><a href="#hdl">HDL Gen</a></li>
+      <li class="nav-dropdown">
+        <button class="nav-drop-btn" aria-expanded="false" aria-haspopup="true">Simulators <svg class="drop-caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg></button>
+        <ul class="nav-dropdown-menu">
+          <li><a href="#gates">Logic Gates</a></li>
+          <li><a href="#kmap">K-Map</a></li>
+          <li><a href="#flipflops">Flip-Flops</a></li>
+          <li><a href="#muxdemux">MUX/DEMUX</a></li>
+          <li><a href="#encoders">Encoder/Decoder</a></li>
+          <li><a href="#adders">Adders</a></li>
+          <li><a href="#circuit">Circuit Builder</a></li>
+        </ul>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-drop-btn" aria-expanded="false" aria-haspopup="true">Tools <svg class="drop-caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg></button>
+        <ul class="nav-dropdown-menu">
+          <li><a href="#calculator">Binary Calculator</a></li>
+          <li><a href="#hdl">VLSI Code Gen</a></li>
+        </ul>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-drop-btn" aria-expanded="false" aria-haspopup="true">Learning <svg class="drop-caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg></button>
+        <ul class="nav-dropdown-menu">
+          <li><a href="#learn">Learning Center</a></li>
+          <li><a href="#quiz">Quiz</a></li>
+        </ul>
+      </li>
       <li><a href="#about">About</a></li>
     </ul>
 
@@ -81,7 +94,7 @@
       </div>
       <div class="hero-stats">
         <div><span>8</span>Logic gates</div>
-        <div><span>13</span>Interactive labs</div>
+        <div><span>11</span>Interactive labs</div>
         <div><span>0</span>Servers required</div>
       </div>
     </div>
@@ -316,32 +329,10 @@
   </div>
 </section>
 
-<!-- ================= TIMING / PROPAGATION DELAY ================= -->
-<section id="timing" class="section">
-  <div class="section-head">
-    <p class="eyebrow">07 — Signal Behaviour</p>
-    <h2>Propagation Delay Visualizer</h2>
-    <p class="section-sub">Real gates never switch instantly. Flip input A and watch the signal physically travel through the gate before the LED responds.</p>
-  </div>
-
-  <div class="glass panel">
-    <div class="delay-controls">
-      <label for="delayGate">Gate</label>
-      <select id="delayGate" class="themed-select"></select>
-      <label for="delayNs">Delay</label>
-      <input type="range" id="delayNs" min="50" max="1500" step="50" value="400">
-      <span id="delayNsLabel">400 ns</span>
-      <button class="btn btn-primary btn-small" id="delayFire">Toggle Input A</button>
-    </div>
-    <svg id="delaySvg" viewBox="0 0 700 180" class="delay-svg" role="img" aria-label="Propagation delay animation"></svg>
-    <p class="muted small" id="delayStatus">Signal settled.</p>
-  </div>
-</section>
-
 <!-- ================= CIRCUIT BUILDER ================= -->
 <section id="circuit" class="section alt">
   <div class="section-head">
-    <p class="eyebrow">08 — Build Freely</p>
+    <p class="eyebrow">07 — Build Freely</p>
     <h2>Circuit Builder</h2>
     <p class="section-sub">Drag gates onto the canvas, then drag from an output port straight to an input port to wire them. Simulation runs continuously with real signal propagation.</p>
   </div>
@@ -371,7 +362,7 @@
 <!-- ================= BINARY CALCULATOR ================= -->
 <section id="calculator" class="section">
   <div class="section-head">
-    <p class="eyebrow">09 — Number Systems</p>
+    <p class="eyebrow">08 — Number Systems</p>
     <h2>Binary Calculator</h2>
   </div>
   <div class="glass panel calc-panel">
@@ -409,7 +400,7 @@
 <!-- ================= LEARNING CENTER ================= -->
 <section id="learn" class="section alt">
   <div class="section-head">
-    <p class="eyebrow">10 — Reference</p>
+    <p class="eyebrow">09 — Reference</p>
     <h2>Learning Center</h2>
   </div>
   <div class="learn-grid" id="learnGrid"></div>
@@ -418,7 +409,7 @@
 <!-- ================= QUIZ ================= -->
 <section id="quiz" class="section">
   <div class="section-head">
-    <p class="eyebrow">11 — Test Yourself</p>
+    <p class="eyebrow">10 — Test Yourself</p>
     <h2>Digital Logic Quiz</h2>
   </div>
   <div class="glass panel quiz-panel">
@@ -445,22 +436,12 @@
   </div>
 </section>
 
-<!-- ================= TODAY'S CHALLENGE ================= -->
-<section id="challenge" class="section alt">
-  <div class="section-head">
-    <p class="eyebrow">12 — Daily Practice</p>
-    <h2>Today's Challenge</h2>
-    <p class="section-sub">A new digital-logic problem every day. Same challenge for everyone, all day — come back tomorrow for the next one.</p>
-  </div>
-  <div class="glass panel challenge-card" id="challengeCard"></div>
-</section>
-
-<!-- ================= HDL GENERATOR ================= -->
+<!-- ================= VLSI CODE GENERATOR ================= -->
 <section id="hdl" class="section">
   <div class="section-head">
-    <p class="eyebrow">13 — VLSI / HDL</p>
-    <h2>Verilog Code Generator</h2>
-    <p class="section-sub">Turn what you've built into synthesizable Verilog — either the gate currently selected in the Gate Simulator, or your full Circuit Builder design.</p>
+    <p class="eyebrow">11 — VLSI / HDL</p>
+    <h2>VLSI Code Generator</h2>
+    <p class="section-sub">Turn what you've built into synthesizable HDL — either the gate currently selected in the Gate Simulator, or your full Circuit Builder design, in Verilog or VHDL.</p>
   </div>
   <div class="glass panel">
     <div class="hdl-controls">
@@ -469,14 +450,29 @@
         <option value="gate">Selected Logic Gate</option>
         <option value="circuit">Circuit Builder design</option>
       </select>
-      <button class="btn btn-primary btn-small" id="hdlGenerate">Generate Verilog</button>
+      <label for="hdlLang">Language</label>
+      <select id="hdlLang" class="themed-select">
+        <option value="verilog">Verilog</option>
+        <option value="vhdl">VHDL</option>
+      </select>
+      <button class="btn btn-primary btn-small" id="hdlGenerate">Generate Code</button>
     </div>
     <div class="hdl-output">
       <div class="hdl-actions">
         <button class="btn btn-small btn-ghost" id="hdlCopy">Copy</button>
-        <button class="btn btn-small btn-ghost" id="hdlDownload">Download .v</button>
+        <button class="btn btn-small btn-ghost" id="hdlDownload">Download</button>
       </div>
-      <pre id="hdlCode">// Click "Generate Verilog" to produce a module here.</pre>
+      <pre id="hdlCode">// Click "Generate Code" to produce a module here.</pre>
+    </div>
+    <div class="hdl-quicknav">
+      <a class="hdl-nav-card" href="#gates">
+        <span class="hdl-nav-icon" aria-hidden="true">⎌</span>
+        <span><b>Open Logic Gates</b><br><span class="muted small">Pick or tweak the gate this generator reads from.</span></span>
+      </a>
+      <a class="hdl-nav-card" href="#circuit">
+        <span class="hdl-nav-icon" aria-hidden="true">⌁</span>
+        <span><b>Open Circuit Simulator</b><br><span class="muted small">Build a custom circuit to generate a full module.</span></span>
+      </a>
     </div>
   </div>
 </section>
@@ -490,26 +486,31 @@
   <div class="about-grid">
     <div class="glass panel">
       <h3>Built for learning by doing</h3>
-      <p class="muted">LogicLab turns first-semester digital electronics theory into something you can click, drag and watch respond in real time — no lab kit, breadboard or backend required. Every simulator runs entirely in your browser and keeps working offline once loaded.</p>
+      <p class="muted">LogicLab turns digital electronics theory into something you can click, drag and watch respond in real time — no lab kit, breadboard or backend required. Every simulator runs entirely in your browser and keeps working offline once loaded.</p>
     </div>
     <div class="glass panel">
       <h3>Under the hood</h3>
+      <p class="muted">LogicLab is built from the ground up on a foundation of pure web technologies—HTML5, CSS3. It uses hand-coded simulators to keep computations fast. Best of all, it works as an installable PWA that functions flawlessly without an internet connection.</p>
       <ul class="plain-list">
         <li>Semantic HTML5, hand-written CSS3, vanilla ES6 — no frameworks</li>
         <li>Quine–McCluskey based K-Map minimizer</li>
-        <li>Custom event-driven circuit evaluation engine with real signal propagation</li>
+        <li>Custom event-driven circuit evaluation engine</li>
         <li>Installable as a Progressive Web App</li>
       </ul>
     </div>
-    <div class="glass panel author-card">
-      <div class="author-avatar">RS</div>
-      <div>
-        <h3>Rishita Sagajkar</h3>
-        <p class="muted small">Creator &amp; developer of LogicLab.</p>
-        <div class="author-links">
-          <a href="#" id="authorLinkedIn" target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a href="#" id="authorGitHub" target="_blank" rel="noopener">GitHub ↗</a>
-        </div>
+  </div>
+</section>
+
+<!-- ================= DEVELOPER'S MARK ================= -->
+<section class="dev-mark">
+  <div class="glass panel author-card">
+    <div class="author-avatar">RS</div>
+    <div>
+      <h3>Developed by Rishita Sagajkar</h3>
+      <div class="author-links">
+        <a href="https://www.linkedin.com/in/rishitasagajkar/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://github.com/invictus127" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="#" id="authorPortfolio" target="_blank" rel="noopener">Portfolio ↗</a>
       </div>
     </div>
   </div>

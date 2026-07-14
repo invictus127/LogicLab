@@ -34,7 +34,28 @@ const bit = v => (v ? 1 : 0);
   $$('#navLinks a').forEach(a => a.addEventListener('click', () => {
     navLinks.classList.remove('open');
     navToggle.setAttribute('aria-expanded', 'false');
+    $$('.nav-dropdown.open').forEach(d => { d.classList.remove('open'); $('.nav-drop-btn', d).setAttribute('aria-expanded', 'false'); });
   }));
+
+  // Header dropdown groups (Simulators / Tools / Learning)
+  $$('.nav-dropdown').forEach(drop => {
+    const btn = $('.nav-drop-btn', drop);
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !drop.classList.contains('open');
+      $$('.nav-dropdown.open').forEach(d => { if (d !== drop) { d.classList.remove('open'); $('.nav-drop-btn', d).setAttribute('aria-expanded', 'false'); } });
+      drop.classList.toggle('open', willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-dropdown')) {
+      $$('.nav-dropdown.open').forEach(d => { d.classList.remove('open'); $('.nav-drop-btn', d).setAttribute('aria-expanded', 'false'); });
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $$('.nav-dropdown.open').forEach(d => { d.classList.remove('open'); $('.nav-drop-btn', d).setAttribute('aria-expanded', 'false'); });
+  });
 
   // Hero particles
   const field = $('#heroParticles');
@@ -779,62 +800,7 @@ function ioBoxDiagram(title, ins, outs, bottomPins = []) {
 })();
 
 /* =========================================================
-   7. PROPAGATION DELAY VISUALIZER
-   ========================================================= */
-const DelayLab = (() => {
-  const sel = $('#delayGate');
-  const range = $('#delayNs');
-  const label = $('#delayNsLabel');
-  const svg = $('#delaySvg');
-  const status = $('#delayStatus');
-  let A = 0; const Bfixed = 1;
-
-  Object.keys(GATES).forEach(t => {
-    const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o);
-  });
-  sel.value = 'AND';
-  range.addEventListener('input', () => label.textContent = range.value + ' ns');
-
-  function draw(outputVal, animating) {
-    const g = GATES[sel.value];
-    const twoInput = g.inputs === 2;
-    svg.innerHTML = `
-      <line x1="20" y1="60" x2="280" y2="60" stroke="var(--accent)" stroke-width="3"/>
-      ${twoInput ? '<line x1="20" y1="120" x2="280" y2="120" stroke="var(--text-muted)" stroke-width="3"/>' : ''}
-      <rect x="280" y="${twoInput?40:70}" width="120" height="${twoInput?100:40}" rx="10" fill="var(--surface-strong)" stroke="var(--accent-2)" stroke-width="2"/>
-      <text x="340" y="${twoInput?96:94}" text-anchor="middle" fill="var(--text)" font-family="monospace" font-size="16" font-weight="700">${sel.value}</text>
-      <line x1="400" y1="${twoInput?90:90}" x2="620" y2="90" stroke="${outputVal ? 'var(--accent-3)' : 'var(--text-muted)'}" stroke-width="3"/>
-      <circle cx="650" cy="90" r="20" fill="${outputVal ? 'var(--accent-3)' : 'var(--bg-alt)'}" stroke="var(--border)" stroke-width="2"/>
-      <text x="18" y="50" fill="var(--text-muted)" font-family="monospace" font-size="12">A=${A}</text>
-      ${twoInput ? `<text x="18" y="112" fill="var(--text-muted)" font-family="monospace" font-size="12">B=${Bfixed}</text>` : ''}
-      ${animating ? `<circle r="6" fill="var(--accent-2)"><animateMotion dur="${range.value}ms" repeatCount="1" path="M20 60 H280"/></circle>` : ''}
-    `;
-  }
-
-  function currentOutput() {
-    const g = GATES[sel.value];
-    return g.inputs === 1 ? g.fn(A) : g.fn(A, Bfixed);
-  }
-
-  draw(currentOutput(), false);
-
-  $('#delayFire').addEventListener('click', () => {
-    A = A ? 0 : 1;
-    const before = currentOutput.__last;
-    status.textContent = `Signal propagating through ${sel.value}…`;
-    draw($('#delaySvg') && Number($('#delaySvg').dataset.out || 0), true);
-    const ns = Number(range.value);
-    setTimeout(() => {
-      const out = currentOutput();
-      draw(out, false);
-      status.textContent = `Signal settled after ${ns} ns.`;
-    }, Math.min(ns, 1600));
-  });
-  sel.addEventListener('change', () => { draw(currentOutput(), false); status.textContent = 'Signal settled.'; });
-})();
-
-/* =========================================================
-   8. CIRCUIT BUILDER
+   7. CIRCUIT BUILDER
    ========================================================= */
 const CircuitBuilder = (() => {
   const GATE_IN = { INPUT:0, OUTPUT:1, AND:2, OR:2, NOT:1, NAND:2, NOR:2, XOR:2, XNOR:2, BUFFER:1 };
@@ -1008,7 +974,7 @@ const CircuitBuilder = (() => {
       valueEl.className = 'val';
       valueEl.textContent = n.value;
       valueEl.addEventListener('mousedown', e => e.stopPropagation());
-      valueEl.addEventListener('click', e => { e.stopPropagation(); n.value = n.value ? 0 : 1; simulate(); });
+      valueEl.addEventListener('click', e => { e.stopPropagation(); n.value = n.value ? 0 : 1; valueEl.textContent = n.value; simulate(); });
     } else {
       valueEl = document.createElement('span');
       valueEl.className = 'val';
@@ -1185,7 +1151,7 @@ const CircuitBuilder = (() => {
 })();
 
 /* =========================================================
-   9. BINARY CALCULATOR
+   8. BINARY CALCULATOR
    ========================================================= */
 const Calculator = (() => {
   $$('.calc-tab').forEach(tab => tab.addEventListener('click', () => {
@@ -1232,7 +1198,7 @@ const Calculator = (() => {
 })();
 
 /* =========================================================
-   10. LEARNING CENTER
+   9. LEARNING CENTER
    ========================================================= */
 const LEARN_TOPICS = [
   { tag:'Fundamentals', title:'Logic Gates', def:'The basic building blocks of digital circuits, each implementing a single Boolean operation on one or more binary inputs.', app:'Every digital chip — from a calculator to a CPU — is built entirely from gates.', adv:'Fast, cheap, and composable into arbitrarily complex logic.', ex:'A doorbell circuit using an OR gate for two buttons.' },
@@ -1271,13 +1237,15 @@ const LEARN_TOPICS = [
     window.LL_SEARCH_INDEX.push({ text: t.title + ' ' + t.tag + ' ' + t.def, label: t.title, href: '#learn' });
   });
   Object.keys(GATES).forEach(g => window.LL_SEARCH_INDEX.push({ text: g + ' logic gate ' + GATES[g].expr, label: g + ' Gate', href: '#gates' }));
-  ['K-Map','Flip-Flop','Multiplexer','Demultiplexer','Encoder','Decoder','Half Adder','Full Adder','Binary Calculator','Circuit Builder','Propagation Delay','Quiz'].forEach(t =>
-    window.LL_SEARCH_INDEX.push({ text: t, label: t, href: '#' + t.toLowerCase().replace(/[^a-z]+/g,'') })
-  );
+  [
+    ['K-Map', '#kmap'], ['Flip-Flop', '#flipflops'], ['Multiplexer', '#muxdemux'], ['Demultiplexer', '#muxdemux'],
+    ['Encoder', '#encoders'], ['Decoder', '#encoders'], ['Half Adder', '#adders'], ['Full Adder', '#adders'],
+    ['Binary Calculator', '#calculator'], ['Circuit Builder', '#circuit'], ['Quiz', '#quiz'], ['VLSI Code Generator', '#hdl'],
+  ].forEach(([t, href]) => window.LL_SEARCH_INDEX.push({ text: t, label: t, href }));
 })();
 
 /* =========================================================
-   11. QUIZ
+   10. QUIZ
    ========================================================= */
 const QUIZ_QUESTIONS = [
   { q:'What is the output of an AND gate when both inputs are 1?', o:['0','1','Undefined','Depends on wiring'], a:1, ex:'AND outputs 1 only when every input is 1.' },
@@ -1294,7 +1262,7 @@ const QUIZ_QUESTIONS = [
   { q:'Which logic family combination is "combinational" rather than "sequential"?', o:['Has a clock input', 'Has memory of past state', 'Output depends only on current inputs', 'Uses flip-flops'], a:2, ex:'Combinational circuits have no memory — output depends only on present inputs.' },
   { q:'A full adder differs from a half adder because it also accepts:', o:['A clock signal', 'A carry-in', 'A reset line', 'A select line'], a:1, ex:'A full adder adds A, B and an incoming Carry-in (Cin).' },
   { q:'What is the hexadecimal value of decimal 255?', o:['FE','FF','F0','EE'], a:1, ex:'255 = 11111111₂ = FF in hex.' },
-  { q:'What is propagation delay?', o:['The time a gate takes to physically move', 'The time for an output to respond after an input changes', 'A type of flip-flop', 'A K-map grouping rule'], a:1, ex:'Propagation delay is the real-world time lag between an input change and the resulting output change.' },
+  { q:'In Verilog, which statement continuously drives a wire from a combinational expression?', o:['always', 'assign', 'initial', 'module'], a:1, ex:'An `assign` statement continuously drives a wire — the standard way to describe combinational logic in Verilog.' },
 ];
 
 const Quiz = (() => {
@@ -1374,94 +1342,49 @@ const Quiz = (() => {
 })();
 
 /* =========================================================
-   12. TODAY'S CHALLENGE — a new deterministic challenge each day
-   ========================================================= */
-const CHALLENGE_BANK = [
-  { t:'Build a two-input AND from NAND gates only', d:'In the Circuit Builder, wire up an AND function using nothing but NAND gates — the universal gate. You should need exactly two NAND gates.', diff:'medium', href:'#circuit' },
-  { t:'Derive the SOP for a 3-variable majority function', d:'In the K-Map solver, mark the minterms where at least 2 of A, B, C are 1, then simplify. What\'s the minimal expression?', diff:'medium', href:'#kmap' },
-  { t:'Toggle a JK flip-flop into every state', d:'In the Flip-Flop Lab, switch to JK and find the input combination that toggles Q on every clock pulse.', diff:'easy', href:'#flipflops' },
-  { t:'Predict a 4:1 MUX output before selecting', d:'Set all four MUX inputs to a unique pattern, guess the output for each select combination, then check yourself.', diff:'easy', href:'#muxdemux' },
-  { t:'Convert 173 (decimal) to binary, hex and octal', d:'Use the Binary Calculator to convert 173 to all three bases without a calculator first — then verify.', diff:'easy', href:'#calculator' },
-  { t:'Build a half adder from primitive gates', d:'In the Circuit Builder, wire an XOR and an AND gate together to reproduce a half adder from the Adders section.', diff:'easy', href:'#circuit' },
-  { t:'Simplify a 4-variable "don\'t care free" expression', d:'Pick any 6 minterms in the 4-variable K-Map and find the minimal SOP — try to beat the solver by eye first.', diff:'hard', href:'#kmap' },
-  { t:'Explain why NAND is universal', d:'Use the Logic Gate simulator to build NOT, AND and OR — each using only NAND gates conceptually — and check the truth tables match.', diff:'hard', href:'#gates' },
-  { t:'Generate Verilog for an XOR gate', d:'Head to the HDL Generator and produce a Verilog module for the XOR gate. Read through the generated code line by line.', diff:'easy', href:'#hdl' },
-  { t:'Time a signal through a NOR gate', d:'In the Propagation Delay Visualizer, set the delay to 1200ns on a NOR gate and toggle input A. Watch the settle time.', diff:'easy', href:'#timing' },
-  { t:'Encode all 4 encoder inputs one at a time', d:'In the Encoder/Decoder lab, activate each of the 4 encoder inputs individually and note the 2-bit code each produces.', diff:'easy', href:'#encoders' },
-  { t:'Design a full adder chain in your head', d:'Without touching the simulator, work out what Sum and Cout would be for A=1, B=1, Cin=1 — then verify with the Full Adder.', diff:'medium', href:'#adders' },
-  { t:'Beat the 30-second quiz clock', d:'Take the Digital Logic Quiz and try to answer all 15 questions correctly before time runs out on any of them.', diff:'hard', href:'#quiz' },
-  { t:'Wire a 1:4 DEMUX to light exactly Y2', d:'In the Demultiplexer, find the exact select-line combination that routes the input to output Y2 only.', diff:'easy', href:'#muxdemux' },
-  { t:'Build an SR latch and hit the invalid state on purpose', d:'In the Flip-Flop Lab, set S=1 and R=1 to see what LogicLab does when a real SR latch would be undefined.', diff:'medium', href:'#flipflops' },
-  { t:'Export a circuit and re-import it', d:'Build anything in the Circuit Builder, export it as JSON, reset the canvas, then import your file back in.', diff:'easy', href:'#circuit' },
-  { t:'Find the minimal expression for a 2-variable XOR', d:'In the 2-variable K-Map, mark the XOR pattern (opposite corners) and confirm the solver can\'t simplify it below 2 terms.', diff:'medium', href:'#kmap' },
-  { t:'Generate Verilog for your custom circuit', d:'Build any small circuit in the Circuit Builder, then generate its Verilog module from the HDL Generator.', diff:'medium', href:'#hdl' },
-  { t:'Work out 1101₂ + 0111₂ by hand first', d:'Predict the binary sum of 1101 and 0111 on paper, then check your answer in the Binary Calculator.', diff:'easy', href:'#calculator' },
-  { t:'Chain two 2:1 MUXes into a 4:1 MUX', d:'In the Circuit Builder, see if you can reason through how two 2:1 multiplexers would combine to behave like one 4:1 MUX.', diff:'hard', href:'#circuit' },
-];
-
-const Challenge = (() => {
-  const dayIndex = Math.floor(Date.now() / 86400000); // days since epoch — same for everyone, all day
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const challenge = CHALLENGE_BANK[dayIndex % CHALLENGE_BANK.length];
-  const cardEl = $('#challengeCard');
-
-  function streakInfo() {
-    let streak = 0;
-    for (let i = 0; i < 400; i++) {
-      const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
-      if (localStorage.getItem('logiclab-challenge-' + d) === 'done') streak++;
-      else break;
-    }
-    return streak;
-  }
-
-  function render() {
-    const done = localStorage.getItem('logiclab-challenge-' + todayKey) === 'done';
-    const streak = streakInfo();
-    cardEl.innerHTML = `
-      <span class="challenge-date">${new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' })}</span>
-      <span class="challenge-diff ${challenge.diff}">${challenge.diff}</span>
-      <h3 style="margin-top:.6rem">${challenge.t}</h3>
-      <p class="muted">${challenge.d}</p>
-      <div class="challenge-actions">
-        <a class="btn btn-primary btn-small" href="${challenge.href}">Open simulator →</a>
-        <button class="btn btn-small ${done ? 'btn-ghost' : ''}" id="challengeDoneBtn">${done ? 'Mark as not done' : 'Mark as complete'}</button>
-        ${done ? '<span class="challenge-done-badge">✓ Completed today</span>' : ''}
-      </div>
-      <div class="challenge-streak">
-        <div><span>${streak}</span><span class="muted small">day streak</span></div>
-        <div><span>${CHALLENGE_BANK.length}</span><span class="muted small">challenges in rotation</span></div>
-      </div>`;
-    $('#challengeDoneBtn').addEventListener('click', () => {
-      if (localStorage.getItem('logiclab-challenge-' + todayKey) === 'done') localStorage.removeItem('logiclab-challenge-' + todayKey);
-      else { localStorage.setItem('logiclab-challenge-' + todayKey, 'done'); LL.toast('Nice work — challenge marked complete!'); }
-      render();
-    });
-  }
-  render();
-})();
-
-/* =========================================================
-   13. VLSI / HDL GENERATOR — Verilog for a gate or a full circuit
+   11. VLSI / HDL GENERATOR — Verilog & VHDL for a gate or a full circuit
    ========================================================= */
 const HdlGenerator = (() => {
   const sourceSel = $('#hdlSource');
+  const langSel = $('#hdlLang');
   const codeEl = $('#hdlCode');
-  const VERILOG_OP = { AND:'&', OR:'|', XOR:'^', NAND:'~&', NOR:'~|', XNOR:'~^' };
 
-  function highlight(code) {
+  // Verilog: AND/OR/XOR/XNOR are safe as binary infix operators, but ~& and ~|
+  // are unary reduction operators only — using them infix ("a ~& b") is a
+  // syntax error, so NAND/NOR are built as a negated parenthesised expression.
+  const VERILOG_OP = { AND: '&', OR: '|', XOR: '^', XNOR: '~^' };
+  // VHDL has native binary nand/nor/xnor operators, so no rewriting is needed there.
+  const VHDL_OP = { AND: 'and', OR: 'or', XOR: 'xor', NAND: 'nand', NOR: 'nor', XNOR: 'xnor' };
+
+  function verilogExpr(type, args) {
+    if (type === 'NOT') return `~${args[0]}`;
+    if (type === 'BUFFER') return args[0];
+    if (type === 'NAND') return `~(${args[0]} & ${args[1]})`;
+    if (type === 'NOR') return `~(${args[0]} | ${args[1]})`;
+    return `${args[0]} ${VERILOG_OP[type]} ${args[1]}`;
+  }
+
+  function vhdlExpr(type, args) {
+    if (type === 'NOT') return `not ${args[0]}`;
+    if (type === 'BUFFER') return args[0];
+    return `${args[0]} ${VHDL_OP[type]} ${args[1]}`;
+  }
+
+  function highlightVerilog(code) {
     return code
       .replace(/\b(module|endmodule|input|output|wire|assign|always|posedge|begin|end|reg)\b/g, '<span class="hdl-kw">$1</span>')
       .replace(/(\/\/.*)$/gm, '<span class="hdl-com">$1</span>');
+  }
+  function highlightVhdl(code) {
+    return code
+      .replace(/\b(library|use|entity|is|port|in|out|end|architecture|of|begin|signal|not|and|or|xor|nand|nor|xnor|std_logic)\b/gi, '<span class="hdl-kw">$1</span>')
+      .replace(/(--.*)$/gm, '<span class="hdl-com">$1</span>');
   }
 
   function gateVerilog(type) {
     const g = GATES[type];
     const ins = g.inputs === 1 ? ['a'] : ['a', 'b'];
-    let body;
-    if (type === 'NOT') body = 'assign y = ~a;';
-    else if (type === 'BUFFER') body = 'assign y = a;';
-    else body = `assign y = ${ins.join(` ${VERILOG_OP[type]} `)};`;
+    const body = `assign y = ${verilogExpr(type, ins)};`;
     return [
       `// LogicLab — auto-generated Verilog`,
       `// ${type} gate — ${GATE_DESC[type]}`,
@@ -1476,13 +1399,42 @@ const HdlGenerator = (() => {
     ].join('\n');
   }
 
-  function circuitVerilog() {
-    const { nodes, connections, GATE_FN } = CircuitBuilder.getState();
-    if (!nodes.length) return '// The Circuit Builder canvas is empty — add some gates first.';
+  function gateVhdl(type) {
+    const g = GATES[type];
+    const ins = g.inputs === 1 ? ['a'] : ['a', 'b'];
+    const name = type.toLowerCase() + '_gate';
+    const ports = ins.map(p => `    ${p} : in  STD_LOGIC;`).join('\n');
+    return [
+      `-- LogicLab — auto-generated VHDL`,
+      `-- ${type} gate — ${GATE_DESC[type]}`,
+      `library IEEE;`,
+      `use IEEE.STD_LOGIC_1164.ALL;`,
+      ``,
+      `entity ${name} is`,
+      `  port (`,
+      ports,
+      `    y : out STD_LOGIC`,
+      `  );`,
+      `end entity ${name};`,
+      ``,
+      `architecture Behavioral of ${name} is`,
+      `begin`,
+      `  y <= ${vhdlExpr(type, ins)};`,
+      `end architecture Behavioral;`,
+    ].join('\n');
+  }
+
+  function circuitParts() {
+    const { nodes, connections } = CircuitBuilder.getState();
     const inputs = nodes.filter(n => n.type === 'INPUT');
     const outputs = nodes.filter(n => n.type === 'OUTPUT');
     const gates = nodes.filter(n => n.type !== 'INPUT' && n.type !== 'OUTPUT');
-    const wireName = id => 'w_' + id;
+    return { nodes, connections, inputs, outputs, gates, wireName: id => 'w_' + id };
+  }
+
+  function circuitVerilog() {
+    const { nodes, connections, inputs, outputs, gates, wireName } = circuitParts();
+    if (!nodes.length) return '// The Circuit Builder canvas is empty — add some gates first.';
     const lines = [];
     lines.push('// LogicLab — auto-generated Verilog from Circuit Builder');
     const ports = [...inputs.map(n => `input  wire ${wireName(n.id)}`), ...outputs.map(n => `output wire ${wireName(n.id)}`)];
@@ -1495,48 +1447,87 @@ const HdlGenerator = (() => {
     gates.forEach(n => {
       const inConns = connections.filter(c => c.toNode === n.id).sort((a,b)=>a.toPort-b.toPort);
       const args = inConns.map(c => wireName(c.fromNode));
-      let expr;
-      if (n.type === 'NOT') expr = `~${args[0] || "1'bz"}`;
-      else if (n.type === 'BUFFER') expr = args[0] || "1'bz";
-      else expr = args.length === 2 ? `${args[0]} ${VERILOG_OP[n.type]} ${args[1]}` : (args[0] || "1'bz");
-      lines.push(`  assign ${wireName(n.id)} = ${expr}; // ${n.type}`);
+      const needed = n.type === 'NOT' || n.type === 'BUFFER' ? 1 : 2;
+      while (args.length < needed) args.push("1'b0"); // unconnected input, defaulted low
+      lines.push(`  assign ${wireName(n.id)} = ${verilogExpr(n.type, args)}; // ${n.type}`);
     });
     outputs.forEach(n => {
       const inConn = connections.find(c => c.toNode === n.id);
-      lines.push(`  assign ${wireName(n.id)} = ${inConn ? wireName(inConn.fromNode) : "1'bz"};`);
+      lines.push(`  assign ${wireName(n.id)} = ${inConn ? wireName(inConn.fromNode) : "1'b0"};`);
     });
     lines.push('');
     lines.push('endmodule');
     return lines.join('\n');
   }
 
+  function circuitVhdl() {
+    const { nodes, connections, inputs, outputs, gates, wireName } = circuitParts();
+    if (!nodes.length) return '-- The Circuit Builder canvas is empty — add some gates first.';
+    const lines = [];
+    lines.push('-- LogicLab — auto-generated VHDL from Circuit Builder');
+    lines.push('library IEEE;');
+    lines.push('use IEEE.STD_LOGIC_1164.ALL;');
+    lines.push('');
+    lines.push('entity custom_circuit is');
+    lines.push('  port (');
+    const ports = [
+      ...inputs.map(n => `    ${wireName(n.id)} : in  STD_LOGIC;`),
+      ...outputs.map((n, i) => `    ${wireName(n.id)} : out STD_LOGIC${i === outputs.length - 1 ? '' : ';'}`),
+    ];
+    lines.push(ports.join('\n'));
+    lines.push('  );');
+    lines.push('end entity custom_circuit;');
+    lines.push('');
+    lines.push('architecture Behavioral of custom_circuit is');
+    gates.forEach(n => lines.push(`  signal ${wireName(n.id)} : STD_LOGIC; -- ${n.type} gate`));
+    lines.push('begin');
+    gates.forEach(n => {
+      const inConns = connections.filter(c => c.toNode === n.id).sort((a,b)=>a.toPort-b.toPort);
+      const args = inConns.map(c => wireName(c.fromNode));
+      const needed = n.type === 'NOT' || n.type === 'BUFFER' ? 1 : 2;
+      while (args.length < needed) args.push("'0'"); // unconnected input, defaulted low
+      lines.push(`  ${wireName(n.id)} <= ${vhdlExpr(n.type, args)};`);
+    });
+    outputs.forEach(n => {
+      const inConn = connections.find(c => c.toNode === n.id);
+      lines.push(`  ${wireName(n.id)} <= ${inConn ? wireName(inConn.fromNode) : "'0'"};`);
+    });
+    lines.push('end architecture Behavioral;');
+    return lines.join('\n');
+  }
+
   let lastCode = '';
   $('#hdlGenerate').addEventListener('click', () => {
-    lastCode = sourceSel.value === 'gate' ? gateVerilog(GateSim.getState().current) : circuitVerilog();
-    codeEl.innerHTML = highlight(lastCode);
+    const lang = langSel.value;
+    if (sourceSel.value === 'gate') {
+      lastCode = lang === 'vhdl' ? gateVhdl(GateSim.getState().current) : gateVerilog(GateSim.getState().current);
+    } else {
+      lastCode = lang === 'vhdl' ? circuitVhdl() : circuitVerilog();
+    }
+    codeEl.innerHTML = lang === 'vhdl' ? highlightVhdl(lastCode) : highlightVerilog(lastCode);
   });
   $('#hdlCopy').addEventListener('click', () => {
-    if (!lastCode) { LL.toast('Generate some Verilog first.'); return; }
-    navigator.clipboard.writeText(lastCode).then(() => LL.toast('Verilog copied to clipboard.')).catch(() => LL.toast('Could not copy — select and copy manually.'));
+    if (!lastCode) { LL.toast('Generate some code first.'); return; }
+    navigator.clipboard.writeText(lastCode).then(() => LL.toast('Code copied to clipboard.')).catch(() => LL.toast('Could not copy — select and copy manually.'));
   });
   $('#hdlDownload').addEventListener('click', () => {
-    if (!lastCode) { LL.toast('Generate some Verilog first.'); return; }
-    downloadBlob('logiclab_module.v', lastCode, 'text/plain');
+    if (!lastCode) { LL.toast('Generate some code first.'); return; }
+    const ext = langSel.value === 'vhdl' ? 'vhd' : 'v';
+    downloadBlob(`logiclab_module.${ext}`, lastCode, 'text/plain');
   });
 })();
 
 /* =========================================================
-   14. ABOUT — author links
+   12. ABOUT / DEVELOPER'S MARK
    ========================================================= */
 (function author(){
-  const gh = $('#authorGitHub'), li = $('#authorLinkedIn');
-  if (gh) gh.href = 'https://github.com/invictus127';
-  // LinkedIn URL not yet provided — update the href below once you share it.
-  if (li) li.href = 'https://www.linkedin.com/';
+  // Portfolio URL not yet provided — update the href below once you share it.
+  const pf = $('#authorPortfolio');
+  if (pf) pf.href = '#';
 })();
 
 /* =========================================================
-   15. PWA — SERVICE WORKER REGISTRATION
+   13. PWA — SERVICE WORKER REGISTRATION
    ========================================================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

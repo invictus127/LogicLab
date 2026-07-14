@@ -10,7 +10,7 @@ const bit = v => (v ? 1 : 0);
 
 /* =========================================================
    0. THEME, NAV, PARTICLES, SEARCH
-   ========================================================= */
+   ========================================================= */   /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 (function initChrome(){
   // Theme toggle
   const body = document.body;
@@ -45,7 +45,7 @@ const bit = v => (v ? 1 : 0);
     p.style.animationDuration = (8 + Math.random() * 10) + 's';
     field.appendChild(p);
   }
-
+ /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
   // Search index — built once other sections have rendered (see bottom init)
   window.LL_SEARCH_INDEX = [];
   const input = $('#searchInput');
@@ -152,7 +152,7 @@ function gateSymbolSVG(type) {
     <line x1="${inv ? bubbleX+5 : 46}" y1="32" x2="88" y2="32" stroke="var(--text-muted)" stroke-width="2"/>
   </svg>`;
 }
-
+ /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 const GateSim = (() => {
   let current = 'AND';
   let A = 1, B = 0;
@@ -393,7 +393,7 @@ const KMap = (() => {
     groupsEl.innerHTML = '';
     renderMinterms(); renderGrid();
   });
-
+ /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
   renderMinterms(); renderGrid();
 })();
 
@@ -608,7 +608,7 @@ const EncDec = (() => {
       const p = document.createElement('p'); p.className = 'muted small'; p.style.width = '100%'; p.textContent = note;
       outEl.appendChild(p);
     }
-  }
+  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 
   function renderDecoder() {
     const inEl = $('#decInputs'), outEl = $('#decOutputs');
@@ -770,7 +770,7 @@ const CircuitBuilder = (() => {
     if (!type) return;
     const rect = canvasEl.getBoundingClientRect();
     addNode(type, e.clientX - rect.left - 40, e.clientY - rect.top - 25);
-  });
+  }); /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 
   function addNode(type, x, y) {
     const n = { id: 'n' + (idCounter++), type, x: Math.max(0,x), y: Math.max(0,y), value: type === 'INPUT' ? 0 : null };
@@ -879,7 +879,7 @@ const CircuitBuilder = (() => {
       line.addEventListener('click', () => { if (deleteMode) deleteConnection(c.id); });
       wiresEl.appendChild(line);
     });
-  }
+  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 
   function renderAll() {
     canvasEl.innerHTML = '';
@@ -972,7 +972,7 @@ const CircuitBuilder = (() => {
   connections.push({ id: 'c'+(idCounter++), fromNode: g.id, toNode: o.id, toPort: 0 });
   renderAll();
   window.addEventListener('resize', renderWires);
-})();
+})();  /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 
 /* =========================================================
    9. BINARY CALCULATOR
@@ -1051,7 +1051,7 @@ const LEARN_TOPICS = [
       <p class="muted small">${t.def}</p>
       <details>
         <summary>Applications, advantages &amp; example</summary>
-        <ul>
+        <ul> 
           <li><b>Applications:</b> ${t.app}</li>
           <li><b>Advantages:</b> ${t.adv}</li>
           <li><b>Example:</b> ${t.ex}</li>
@@ -1102,7 +1102,7 @@ const Quiz = (() => {
     idx = 0; score = 0;
     introEl.hidden = true; resultEl.hidden = true; bodyEl.hidden = false;
     showQuestion();
-  }
+  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 
   function showQuestion() {
     clearInterval(timer);
@@ -1162,7 +1162,7 @@ const Quiz = (() => {
   $('#quizStart').addEventListener('click', start);
   $('#quizRestart').addEventListener('click', start);
 })();
-
+ /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
 /* =========================================================
    12. PWA — SERVICE WORKER REGISTRATION
    ========================================================= */

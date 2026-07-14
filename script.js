@@ -10,7 +10,7 @@ const bit = v => (v ? 1 : 0);
 
 /* =========================================================
    0. THEME, NAV, PARTICLES, SEARCH
-   ========================================================= */   /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+   ========================================================= */
 (function initChrome(){
   // Theme toggle
   const body = document.body;
@@ -45,7 +45,7 @@ const bit = v => (v ? 1 : 0);
     p.style.animationDuration = (8 + Math.random() * 10) + 's';
     field.appendChild(p);
   }
- /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+
   // Search index — built once other sections have rendered (see bottom init)
   window.LL_SEARCH_INDEX = [];
   const input = $('#searchInput');
@@ -58,6 +58,64 @@ const bit = v => (v ? 1 : 0);
     results.hidden = false;
   });
   document.addEventListener('click', e => { if (!e.target.closest('.nav-search')) results.hidden = true; });
+
+  // Nav bar reacts to scroll for a more polished top panel
+  const navbar = $('.navbar');
+  let navTicking = false;
+  window.addEventListener('scroll', () => {
+    if (navTicking) return;
+    navTicking = true;
+    requestAnimationFrame(() => {
+      navbar.classList.toggle('scrolled', window.scrollY > 12);
+      navTicking = false;
+    });
+  }, { passive: true });
+
+  // Smooth scroll-reveal for sections (respects prefers-reduced-motion via CSS)
+  $$('main > .section').forEach(s => s.classList.add('reveal'));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('in-view'); io.unobserve(entry.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  $$('.reveal').forEach(s => io.observe(s));
+})();
+
+/* =========================================================
+   0b. THEMED MODAL / TOAST (replaces native alert/confirm so
+   every popup inherits the active dark/light theme)
+   ========================================================= */
+const LL = (() => {
+  const overlay = document.createElement('div');
+  overlay.className = 'll-modal-overlay';
+  overlay.innerHTML = `<div class="ll-modal" role="alertdialog" aria-modal="true">
+    <h4 id="llModalTitle"></h4><p id="llModalBody"></p>
+    <button class="btn btn-primary btn-small" id="llModalOk">OK</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  const okBtn = $('#llModalOk', overlay);
+  function close() { overlay.classList.remove('show'); }
+  okBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+  function alertModal(message, title = 'Heads up') {
+    $('#llModalTitle', overlay).textContent = title;
+    $('#llModalBody', overlay).textContent = message;
+    overlay.classList.add('show');
+    okBtn.focus();
+  }
+
+  function toast(message) {
+    const t = document.createElement('div');
+    t.className = 'll-toast';
+    t.textContent = message;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 2600);
+  }
+
+  return { alert: alertModal, toast };
 })();
 
 /* =========================================================
@@ -152,7 +210,7 @@ function gateSymbolSVG(type) {
     <line x1="${inv ? bubbleX+5 : 46}" y1="32" x2="88" y2="32" stroke="var(--text-muted)" stroke-width="2"/>
   </svg>`;
 }
- /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+
 const GateSim = (() => {
   let current = 'AND';
   let A = 1, B = 0;
@@ -393,7 +451,7 @@ const KMap = (() => {
     groupsEl.innerHTML = '';
     renderMinterms(); renderGrid();
   });
- /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+
   renderMinterms(); renderGrid();
 })();
 
@@ -460,7 +518,7 @@ const FlipFlopLab = (() => {
     const res = nextQ();
     if (res.invalid) {
       $('#circuitHint');
-      alert('Invalid state: S=1 and R=1 is not allowed for an SR flip-flop.');
+      LL.alert('S = 1 and R = 1 is not allowed for an SR flip-flop — the output is undefined on real hardware.', 'Invalid state');
     }
     Q = res.q;
     setLed(qLed, Q); setLed(qnLed, Q ? 0 : 1);
@@ -608,7 +666,7 @@ const EncDec = (() => {
       const p = document.createElement('p'); p.className = 'muted small'; p.style.width = '100%'; p.textContent = note;
       outEl.appendChild(p);
     }
-  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+  }
 
   function renderDecoder() {
     const inEl = $('#decInputs'), outEl = $('#decOutputs');
@@ -677,6 +735,50 @@ const Adders = (() => {
 })();
 
 /* =========================================================
+   6b. SIMULATOR DIAGRAMS — simple theme-aware block diagrams
+   that make each simulator's pinout easy to understand at a glance
+   ========================================================= */
+function ioBoxDiagram(title, ins, outs, bottomPins = []) {
+  const w = 480, h = 200;
+  const boxX = 170, boxW = 140, boxY = 30, boxH = 140;
+  const inGap = boxH / (ins.length + 1);
+  const outGap = boxH / (outs.length + 1);
+  let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="10" class="dia-body"/>`;
+  svg += `<text x="${boxX + boxW / 2}" y="${boxY + boxH / 2 + 5}" text-anchor="middle" class="dia-label" font-weight="700">${title}</text>`;
+  ins.forEach((label, i) => {
+    const y = boxY + inGap * (i + 1);
+    svg += `<line x1="${boxX - 40}" y1="${y}" x2="${boxX}" y2="${y}" class="dia-line"/><circle cx="${boxX - 40}" cy="${y}" r="3" class="dia-accent"/>`;
+    svg += `<text x="${boxX - 48}" y="${y + 4}" text-anchor="end" class="dia-muted">${label}</text>`;
+  });
+  outs.forEach((label, i) => {
+    const y = boxY + outGap * (i + 1);
+    svg += `<line x1="${boxX + boxW}" y1="${y}" x2="${boxX + boxW + 40}" y2="${y}" class="dia-line"/><circle cx="${boxX + boxW + 40}" cy="${y}" r="3" class="dia-accent"/>`;
+    svg += `<text x="${boxX + boxW + 48}" y="${y + 4}" text-anchor="start" class="dia-muted">${label}</text>`;
+  });
+  bottomPins.forEach((label, i) => {
+    const gap = boxW / (bottomPins.length + 1);
+    const x = boxX + gap * (i + 1);
+    svg += `<line x1="${x}" y1="${boxY + boxH}" x2="${x}" y2="${boxY + boxH + 28}" class="dia-line"/><circle cx="${x}" cy="${boxY + boxH + 28}" r="3" class="dia-accent"/>`;
+    svg += `<text x="${x}" y="${boxY + boxH + 42}" text-anchor="middle" class="dia-muted">${label}</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+(function renderDiagrams() {
+  const put = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  put('muxDiagram', ioBoxDiagram('MUX', ['I0','I1','I2','I3'], ['Y'], ['S1','S0']));
+  put('demuxDiagram', ioBoxDiagram('DEMUX', ['D'], ['Y0','Y1','Y2','Y3'], ['S1','S0']));
+  put('encDiagram', ioBoxDiagram('ENCODER', ['I0','I1','I2','I3'], ['Y1','Y0'], []));
+  put('decDiagram', ioBoxDiagram('DECODER', ['I1','I0'], ['Y0','Y1','Y2','Y3'], ['EN']));
+  put('haDiagram', ioBoxDiagram('HALF ADDER', ['A','B'], ['Sum','Carry'], []));
+  put('faDiagram', ioBoxDiagram('FULL ADDER', ['A','B','Cin'], ['Sum','Cout'], []));
+  put('ffDiagram', ioBoxDiagram('D FLIP-FLOP', ['D'], ['Q',"Q'"], ['CLK']) +
+    '<p class="muted small" style="text-align:center;margin-top:.5rem">Shown as a D flip-flop for reference — SR/JK/T share the same Q/Q\' outputs and clock pin, just with different data inputs.</p>');
+})();
+
+/* =========================================================
    7. PROPAGATION DELAY VISUALIZER
    ========================================================= */
 const DelayLab = (() => {
@@ -741,18 +843,29 @@ const CircuitBuilder = (() => {
     NOR: v=>(v[0]|v[1])?0:1, XOR: v=>v[0]^v[1], XNOR: v=>(v[0]^v[1])?0:1, BUFFER: v=>v[0],
   };
   const PALETTE = ['INPUT','OUTPUT','AND','OR','NOT','NAND','NOR','XOR','XNOR','BUFFER'];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const paletteEl = $('#circuitPalette');
   const canvasWrap = $('.circuit-canvas-wrap');
   const canvasEl = $('#circuitCanvas');
   const wiresEl = $('#circuitWires');
   const hintEl = $('#circuitHint');
+  const SVGNS = 'http://www.w3.org/2000/svg';
 
   let nodes = [];
   let connections = [];
   let idCounter = 1;
-  let pendingPort = null;
   let deleteMode = false;
+
+  // caches — kept in sync by renderStructure(); simulate()/drag only ever
+  // touch these cached elements instead of rebuilding the DOM each time.
+  let nodeEls = new Map();   // nodeId -> div
+  let valueEls = new Map();  // nodeId -> value span/button
+  let portEls = new Map();   // "id:type:idx" -> port element
+  let wireEls = new Map();   // connId -> line element
+  let prevWireVal = new Map(); // connId -> last displayed value, for propagation pulses
+
+  const portKey = (id, ptype, idx) => `${id}:${ptype}:${idx}`;
 
   PALETTE.forEach(type => {
     const item = document.createElement('div');
@@ -770,124 +883,203 @@ const CircuitBuilder = (() => {
     if (!type) return;
     const rect = canvasEl.getBoundingClientRect();
     addNode(type, e.clientX - rect.left - 40, e.clientY - rect.top - 25);
-  }); /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+  });
 
   function addNode(type, x, y) {
     const n = { id: 'n' + (idCounter++), type, x: Math.max(0,x), y: Math.max(0,y), value: type === 'INPUT' ? 0 : null };
     nodes.push(n);
-    renderAll();
+    renderStructure();
     return n;
   }
 
   function deleteNode(id) {
     nodes = nodes.filter(n => n.id !== id);
     connections = connections.filter(c => c.fromNode !== id && c.toNode !== id);
-    renderAll();
+    renderStructure();
   }
   function deleteConnection(id) {
     connections = connections.filter(c => c.id !== id);
-    renderWires();
+    renderStructure();
   }
 
-  function handlePortClick(nodeId, portIndex, ptype) {
-    if (!pendingPort) { pendingPort = { nodeId, portIndex, ptype }; renderAll(); return; }
-    if (pendingPort.ptype === ptype) { pendingPort = { nodeId, portIndex, ptype }; renderAll(); return; }
-    const outSide = pendingPort.ptype === 'out' ? pendingPort : { nodeId, portIndex, ptype };
-    const inSide = pendingPort.ptype === 'in' ? pendingPort : { nodeId, portIndex, ptype };
-    if (outSide.nodeId === inSide.nodeId) { pendingPort = null; renderAll(); return; }
-    connections = connections.filter(c => !(c.toNode === inSide.nodeId && c.toPort === inSide.portIndex));
-    connections.push({ id: 'c' + (idCounter++), fromNode: outSide.nodeId, toNode: inSide.nodeId, toPort: inSide.portIndex });
-    pendingPort = null;
-    renderAll();
+  function tryConnect(a, b) {
+    if (a.ptype === b.ptype) return;           // need one out + one in
+    if (a.nodeId === b.nodeId) return;          // no self-loops
+    const outSide = a.ptype === 'out' ? a : b;
+    const inSide  = a.ptype === 'in'  ? a : b;
+    connections = connections.filter(c => !(c.toNode === inSide.nodeId && c.toPort === inSide.idx));
+    connections.push({ id: 'c' + (idCounter++), fromNode: outSide.nodeId, toNode: inSide.nodeId, toPort: inSide.idx });
+    renderStructure();
   }
 
-  function startDrag(e, n, div) {
-    const rect = canvasEl.getBoundingClientRect();
+  function wrapRect() { return canvasWrap.getBoundingClientRect(); }
+  function portCenter(portEl, rect) {
+    const r = portEl.getBoundingClientRect();
+    return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top };
+  }
+
+  // ---- drag to create a wire, starting from either an in or an out port ----
+  function onPortMouseDown(e, nodeId, idx, ptype) {
+    e.stopPropagation(); e.preventDefault();
+    if (deleteMode) return;
+    const rect = wrapRect();
+    const portEl = portEls.get(portKey(nodeId, ptype, idx));
+    const start = portCenter(portEl, rect);
+    const temp = document.createElementNS(SVGNS, 'line');
+    temp.setAttribute('class', 'pending-wire');
+    temp.setAttribute('x1', start.x); temp.setAttribute('y1', start.y);
+    temp.setAttribute('x2', start.x); temp.setAttribute('y2', start.y);
+    wiresEl.appendChild(temp);
+
+    function onMove(ev) {
+      temp.setAttribute('x2', ev.clientX - rect.left);
+      temp.setAttribute('y2', ev.clientY - rect.top);
+    }
+    function onUp(ev) {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      temp.remove();
+      const target = document.elementFromPoint(ev.clientX, ev.clientY);
+      const portTarget = target && target.closest && target.closest('.circuit-port');
+      if (portTarget) {
+        tryConnect({ nodeId, idx, ptype }, { nodeId: portTarget.dataset.nodeId, idx: Number(portTarget.dataset.port), ptype: portTarget.dataset.ptype });
+      }
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  // ---- drag to reposition a node; only touches cached wire elements ----
+  function startNodeDrag(e, n, div) {
+    const rect = wrapRect();
     const offX = e.clientX - rect.left - n.x;
     const offY = e.clientY - rect.top - n.y;
-    function onMove(ev) {
-      n.x = Math.max(0, Math.min(rect.width - 90, ev.clientX - rect.left - offX));
-      n.y = Math.max(0, Math.min(rect.height - 50, ev.clientY - rect.top - offY));
+    let raf = null;
+    function apply(clientX, clientY) {
+      n.x = Math.max(0, Math.min(rect.width - 90, clientX - rect.left - offX));
+      n.y = Math.max(0, Math.min(rect.height - 50, clientY - rect.top - offY));
       div.style.left = n.x + 'px'; div.style.top = n.y + 'px';
-      renderWires();
+      updateWiresTouching(n.id);
+      raf = null;
+    }
+    function onMove(ev) {
+      if (raf) return;
+      raf = requestAnimationFrame(() => apply(ev.clientX, ev.clientY));
     }
     function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   }
 
+  function updateWiresTouching(nodeId) {
+    const rect = wrapRect();
+    connections.forEach(c => {
+      if (c.fromNode !== nodeId && c.toNode !== nodeId) return;
+      const line = wireEls.get(c.id);
+      const outPort = portEls.get(portKey(c.fromNode, 'out', 0));
+      const inPort = portEls.get(portKey(c.toNode, 'in', c.toPort));
+      if (!line || !outPort || !inPort) return;
+      const p1 = portCenter(outPort, rect), p2 = portCenter(inPort, rect);
+      line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+      line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+    });
+  }
+
+  function makePort(n, ptype, idx, topPct) {
+    const p = document.createElement('div');
+    p.className = 'circuit-port ' + ptype;
+    p.style.top = topPct;
+    p.dataset.nodeId = n.id; p.dataset.port = idx; p.dataset.ptype = ptype;
+    p.title = ptype === 'in' ? `Input ${idx}` : 'Output';
+    p.addEventListener('mousedown', e => onPortMouseDown(e, n.id, idx, ptype));
+    portEls.set(portKey(n.id, ptype, idx), p);
+    return p;
+  }
+
   function renderNode(n) {
     const div = document.createElement('div');
-    div.className = 'circuit-node' + (pendingPort && pendingPort.nodeId === n.id ? ' selected' : '');
+    div.className = 'circuit-node';
     div.style.left = n.x + 'px'; div.style.top = n.y + 'px';
     const label = document.createElement('div'); label.textContent = n.type; div.appendChild(label);
 
+    let valueEl;
     if (n.type === 'INPUT') {
-      const btn = document.createElement('button');
-      btn.className = 'val' + (n.value ? ' on' : '');
-      btn.textContent = n.value;
-      btn.addEventListener('mousedown', e => e.stopPropagation());
-      btn.addEventListener('click', e => { e.stopPropagation(); n.value = n.value ? 0 : 1; simulate(); });
-      div.appendChild(btn);
+      valueEl = document.createElement('button');
+      valueEl.className = 'val';
+      valueEl.textContent = n.value;
+      valueEl.addEventListener('mousedown', e => e.stopPropagation());
+      valueEl.addEventListener('click', e => { e.stopPropagation(); n.value = n.value ? 0 : 1; simulate(); });
     } else {
-      const span = document.createElement('span'); span.className = 'val'; span.dataset.role = 'out'; span.textContent = '–';
-      div.appendChild(span);
+      valueEl = document.createElement('span');
+      valueEl.className = 'val';
+      valueEl.dataset.role = 'out';
+      valueEl.textContent = '–';
     }
+    div.appendChild(valueEl);
+    valueEls.set(n.id, valueEl);
 
     const inCount = GATE_IN[n.type];
     for (let i = 0; i < inCount; i++) {
-      const p = document.createElement('div');
-      p.className = 'circuit-port in';
-      p.style.top = inCount === 1 ? '50%' : (i === 0 ? '30%' : '70%');
-      p.dataset.nodeId = n.id; p.dataset.port = i;
-      p.addEventListener('mousedown', e => e.stopPropagation());
-      p.addEventListener('click', e => { e.stopPropagation(); if (!deleteMode) handlePortClick(n.id, i, 'in'); });
-      div.appendChild(p);
+      div.appendChild(makePort(n, 'in', i, inCount === 1 ? '50%' : (i === 0 ? '30%' : '70%')));
     }
-    if (n.type !== 'OUTPUT') {
-      const p = document.createElement('div');
-      p.className = 'circuit-port out'; p.style.top = '50%';
-      p.dataset.nodeId = n.id; p.dataset.port = 0;
-      p.addEventListener('mousedown', e => e.stopPropagation());
-      p.addEventListener('click', e => { e.stopPropagation(); if (!deleteMode) handlePortClick(n.id, 0, 'out'); });
-      div.appendChild(p);
-    }
+    if (n.type !== 'OUTPUT') div.appendChild(makePort(n, 'out', 0, '50%'));
 
     div.addEventListener('mousedown', e => {
       if (deleteMode) { deleteNode(n.id); return; }
-      startDrag(e, n, div);
+      startNodeDrag(e, n, div);
     });
+    div.classList.toggle('delete-armed', deleteMode);
     canvasEl.appendChild(div);
+    nodeEls.set(n.id, div);
   }
 
-  function renderWires() {
-    const wrapRect = canvasWrap.getBoundingClientRect();
-    wiresEl.innerHTML = '';
-    connections.forEach(c => {
-      const outPort = canvasEl.querySelector(`.circuit-port.out[data-node-id="${c.fromNode}"]`);
-      const inPort = canvasEl.querySelector(`.circuit-port.in[data-node-id="${c.toNode}"][data-port="${c.toPort}"]`);
-      if (!outPort || !inPort) return;
-      const r1 = outPort.getBoundingClientRect(), r2 = inPort.getBoundingClientRect();
-      const x1 = r1.left + r1.width/2 - wrapRect.left, y1 = r1.top + r1.height/2 - wrapRect.top;
-      const x2 = r2.left + r2.width/2 - wrapRect.left, y2 = r2.top + r2.height/2 - wrapRect.top;
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-      line.style.pointerEvents = deleteMode ? 'stroke' : 'none';
-      line.style.strokeWidth = deleteMode ? '6' : '2';
-      line.style.cursor = deleteMode ? 'pointer' : 'default';
-      line.addEventListener('click', () => { if (deleteMode) deleteConnection(c.id); });
-      wiresEl.appendChild(line);
-    });
-  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+  function renderWireEl(c) {
+    const line = document.createElementNS(SVGNS, 'line');
+    line.dataset.id = c.id;
+    wiresEl.appendChild(line);
+    const hit = document.createElementNS(SVGNS, 'line');
+    hit.setAttribute('class', 'hit-area');
+    hit.addEventListener('click', () => { if (deleteMode) deleteConnection(c.id); });
+    wiresEl.appendChild(hit);
+    wireEls.set(c.id, line);
+    return { line, hit };
+  }
 
-  function renderAll() {
-    canvasEl.innerHTML = '';
+  // full rebuild — only called on structural changes (add/delete/connect/import/reset)
+  function renderStructure() {
+    canvasEl.innerHTML = ''; wiresEl.innerHTML = '';
+    nodeEls.clear(); valueEls.clear(); portEls.clear(); wireEls.clear();
     nodes.forEach(renderNode);
-    renderWires();
+    const rect = wrapRect();
+    connections.forEach(c => {
+      const { line, hit } = renderWireEl(c);
+      const outPort = portEls.get(portKey(c.fromNode, 'out', 0));
+      const inPort = portEls.get(portKey(c.toNode, 'in', c.toPort));
+      if (outPort && inPort) {
+        const p1 = portCenter(outPort, rect), p2 = portCenter(inPort, rect);
+        [line, hit].forEach(el => { el.setAttribute('x1', p1.x); el.setAttribute('y1', p1.y); el.setAttribute('x2', p2.x); el.setAttribute('y2', p2.y); });
+      }
+    });
     simulate();
   }
 
+  function spawnPulse(line, on) {
+    if (reduceMotion || !line) return;
+    const x1 = line.getAttribute('x1'), y1 = line.getAttribute('y1'), x2 = line.getAttribute('x2'), y2 = line.getAttribute('y2');
+    const dot = document.createElementNS(SVGNS, 'circle');
+    dot.setAttribute('r', 4);
+    dot.setAttribute('fill', on ? 'var(--sig-1)' : 'var(--sig-0)');
+    const anim = document.createElementNS(SVGNS, 'animateMotion');
+    anim.setAttribute('dur', '450ms');
+    anim.setAttribute('path', `M${x1} ${y1} L${x2} ${y2}`);
+    anim.addEventListener('endEvent', () => dot.remove());
+    dot.appendChild(anim);
+    wiresEl.appendChild(dot);
+    setTimeout(() => dot.remove(), 500);
+  }
+
+  // value + color pass only — never touches node/wire DOM structure, so this
+  // stays cheap even in large circuits and can run on every input toggle.
   function simulate() {
     const values = {};
     nodes.forEach(n => values[n.id] = n.type === 'INPUT' ? n.value : null);
@@ -898,17 +1090,16 @@ const CircuitBuilder = (() => {
         if (n.type === 'INPUT') return;
         const inConns = connections.filter(c => c.toNode === n.id);
         if (n.type === 'OUTPUT') {
-          if (inConns.length && values[inConns[0].fromNode] !== null && values[inConns[0].fromNode] !== undefined) {
+          if (inConns.length && values[inConns[0].fromNode] != null) {
             if (values[n.id] !== values[inConns[0].fromNode]) { values[n.id] = values[inConns[0].fromNode]; changed = true; }
           }
           return;
         }
         const need = GATE_IN[n.type];
-        const vals = [];
-        let ready = true;
+        const vals = []; let ready = true;
         for (let p = 0; p < need; p++) {
           const c = inConns.find(cc => cc.toPort === p);
-          if (!c || values[c.fromNode] === null || values[c.fromNode] === undefined) { ready = false; break; }
+          if (!c || values[c.fromNode] == null) { ready = false; break; }
           vals.push(values[c.fromNode]);
         }
         if (ready) {
@@ -917,18 +1108,25 @@ const CircuitBuilder = (() => {
         }
       });
     }
+
     nodes.forEach(n => {
-      const div = canvasEl.querySelector(`.circuit-node .val[data-role="out"]`);
-    });
-    // update display per node
-    Array.from(canvasEl.children).forEach((div, i) => {
-      const n = nodes[i];
-      if (!n || n.type === 'INPUT') return;
-      const span = div.querySelector('.val[data-role="out"]');
-      if (!span) return;
+      if (n.type === 'INPUT') return;
+      const el = valueEls.get(n.id);
+      if (!el) return;
       const v = values[n.id];
-      span.textContent = v === null || v === undefined ? '–' : v;
-      span.classList.toggle('on', v === 1);
+      el.textContent = v === null || v === undefined ? '–' : v;
+      el.classList.toggle('sig-1', v === 1);
+      el.classList.toggle('sig-0', v === 0);
+    });
+
+    connections.forEach(c => {
+      const line = wireEls.get(c.id);
+      if (!line) return;
+      const v = values[c.fromNode];
+      line.classList.toggle('sig-1', v === 1);
+      line.classList.toggle('sig-0', v === 0);
+      const last = prevWireVal.get(c.id);
+      if (v !== undefined && v !== null && v !== last) { spawnPulse(line, v === 1); prevWireVal.set(c.id, v); }
     });
   }
 
@@ -936,12 +1134,16 @@ const CircuitBuilder = (() => {
   $('#circuitDeleteMode').addEventListener('click', (e) => {
     deleteMode = !deleteMode;
     e.target.classList.toggle('btn-primary', deleteMode);
-    hintEl.textContent = deleteMode ? 'Delete mode: click a node or wire to remove it.' : 'Tip: click an output port (right, orange) then an input port (left, blue) to connect them.';
-    renderWires();
+    hintEl.textContent = deleteMode
+      ? 'Delete mode: click a node or a wire to remove it.'
+      : "Tip: drag from an output port (right, orange) to an input port (left, blue) to connect them.";
+    nodeEls.forEach(div => div.classList.toggle('delete-armed', deleteMode));
+    wiresEl.classList.toggle('delete-mode', deleteMode);
   });
-  $('#circuitReset').addEventListener('click', () => { nodes = []; connections = []; pendingPort = null; renderAll(); });
+  $('#circuitReset').addEventListener('click', () => { nodes = []; connections = []; renderStructure(); });
   $('#circuitExport').addEventListener('click', () => {
     downloadBlob('circuit.json', JSON.stringify({ nodes, connections }, null, 2), 'application/json');
+    LL.toast('Circuit exported as circuit.json');
   });
   $('#circuitImport').addEventListener('change', e => {
     const file = e.target.files[0];
@@ -953,9 +1155,10 @@ const CircuitBuilder = (() => {
         if (Array.isArray(data.nodes) && Array.isArray(data.connections)) {
           nodes = data.nodes; connections = data.connections;
           idCounter = 1 + nodes.reduce((m,n)=>Math.max(m, parseInt(n.id.slice(1))||0), 0);
-          renderAll();
+          renderStructure();
+          LL.toast('Circuit imported successfully.');
         }
-      } catch (err) { alert('Could not read that JSON file.'); }
+      } catch (err) { LL.alert('That file does not look like a valid LogicLab circuit export.', 'Import failed'); }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -970,9 +1173,16 @@ const CircuitBuilder = (() => {
   connections.push({ id: 'c'+(idCounter++), fromNode: a.id, toNode: g.id, toPort: 0 });
   connections.push({ id: 'c'+(idCounter++), fromNode: b.id, toNode: g.id, toPort: 1 });
   connections.push({ id: 'c'+(idCounter++), fromNode: g.id, toNode: o.id, toPort: 0 });
-  renderAll();
-  window.addEventListener('resize', renderWires);
-})();  /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+  renderStructure();
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(renderStructure, 150);
+  });
+
+  return { getState: () => ({ nodes, connections, GATE_IN, GATE_FN }) };
+})();
 
 /* =========================================================
    9. BINARY CALCULATOR
@@ -1051,7 +1261,7 @@ const LEARN_TOPICS = [
       <p class="muted small">${t.def}</p>
       <details>
         <summary>Applications, advantages &amp; example</summary>
-        <ul> 
+        <ul>
           <li><b>Applications:</b> ${t.app}</li>
           <li><b>Advantages:</b> ${t.adv}</li>
           <li><b>Example:</b> ${t.ex}</li>
@@ -1102,7 +1312,7 @@ const Quiz = (() => {
     idx = 0; score = 0;
     introEl.hidden = true; resultEl.hidden = true; bodyEl.hidden = false;
     showQuestion();
-  } /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+  }
 
   function showQuestion() {
     clearInterval(timer);
@@ -1162,9 +1372,171 @@ const Quiz = (() => {
   $('#quizStart').addEventListener('click', start);
   $('#quizRestart').addEventListener('click', start);
 })();
- /* Originally written by Rishita - invictus 127 https://github.com/invictus127 */
+
 /* =========================================================
-   12. PWA — SERVICE WORKER REGISTRATION
+   12. TODAY'S CHALLENGE — a new deterministic challenge each day
+   ========================================================= */
+const CHALLENGE_BANK = [
+  { t:'Build a two-input AND from NAND gates only', d:'In the Circuit Builder, wire up an AND function using nothing but NAND gates — the universal gate. You should need exactly two NAND gates.', diff:'medium', href:'#circuit' },
+  { t:'Derive the SOP for a 3-variable majority function', d:'In the K-Map solver, mark the minterms where at least 2 of A, B, C are 1, then simplify. What\'s the minimal expression?', diff:'medium', href:'#kmap' },
+  { t:'Toggle a JK flip-flop into every state', d:'In the Flip-Flop Lab, switch to JK and find the input combination that toggles Q on every clock pulse.', diff:'easy', href:'#flipflops' },
+  { t:'Predict a 4:1 MUX output before selecting', d:'Set all four MUX inputs to a unique pattern, guess the output for each select combination, then check yourself.', diff:'easy', href:'#muxdemux' },
+  { t:'Convert 173 (decimal) to binary, hex and octal', d:'Use the Binary Calculator to convert 173 to all three bases without a calculator first — then verify.', diff:'easy', href:'#calculator' },
+  { t:'Build a half adder from primitive gates', d:'In the Circuit Builder, wire an XOR and an AND gate together to reproduce a half adder from the Adders section.', diff:'easy', href:'#circuit' },
+  { t:'Simplify a 4-variable "don\'t care free" expression', d:'Pick any 6 minterms in the 4-variable K-Map and find the minimal SOP — try to beat the solver by eye first.', diff:'hard', href:'#kmap' },
+  { t:'Explain why NAND is universal', d:'Use the Logic Gate simulator to build NOT, AND and OR — each using only NAND gates conceptually — and check the truth tables match.', diff:'hard', href:'#gates' },
+  { t:'Generate Verilog for an XOR gate', d:'Head to the HDL Generator and produce a Verilog module for the XOR gate. Read through the generated code line by line.', diff:'easy', href:'#hdl' },
+  { t:'Time a signal through a NOR gate', d:'In the Propagation Delay Visualizer, set the delay to 1200ns on a NOR gate and toggle input A. Watch the settle time.', diff:'easy', href:'#timing' },
+  { t:'Encode all 4 encoder inputs one at a time', d:'In the Encoder/Decoder lab, activate each of the 4 encoder inputs individually and note the 2-bit code each produces.', diff:'easy', href:'#encoders' },
+  { t:'Design a full adder chain in your head', d:'Without touching the simulator, work out what Sum and Cout would be for A=1, B=1, Cin=1 — then verify with the Full Adder.', diff:'medium', href:'#adders' },
+  { t:'Beat the 30-second quiz clock', d:'Take the Digital Logic Quiz and try to answer all 15 questions correctly before time runs out on any of them.', diff:'hard', href:'#quiz' },
+  { t:'Wire a 1:4 DEMUX to light exactly Y2', d:'In the Demultiplexer, find the exact select-line combination that routes the input to output Y2 only.', diff:'easy', href:'#muxdemux' },
+  { t:'Build an SR latch and hit the invalid state on purpose', d:'In the Flip-Flop Lab, set S=1 and R=1 to see what LogicLab does when a real SR latch would be undefined.', diff:'medium', href:'#flipflops' },
+  { t:'Export a circuit and re-import it', d:'Build anything in the Circuit Builder, export it as JSON, reset the canvas, then import your file back in.', diff:'easy', href:'#circuit' },
+  { t:'Find the minimal expression for a 2-variable XOR', d:'In the 2-variable K-Map, mark the XOR pattern (opposite corners) and confirm the solver can\'t simplify it below 2 terms.', diff:'medium', href:'#kmap' },
+  { t:'Generate Verilog for your custom circuit', d:'Build any small circuit in the Circuit Builder, then generate its Verilog module from the HDL Generator.', diff:'medium', href:'#hdl' },
+  { t:'Work out 1101₂ + 0111₂ by hand first', d:'Predict the binary sum of 1101 and 0111 on paper, then check your answer in the Binary Calculator.', diff:'easy', href:'#calculator' },
+  { t:'Chain two 2:1 MUXes into a 4:1 MUX', d:'In the Circuit Builder, see if you can reason through how two 2:1 multiplexers would combine to behave like one 4:1 MUX.', diff:'hard', href:'#circuit' },
+];
+
+const Challenge = (() => {
+  const dayIndex = Math.floor(Date.now() / 86400000); // days since epoch — same for everyone, all day
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const challenge = CHALLENGE_BANK[dayIndex % CHALLENGE_BANK.length];
+  const cardEl = $('#challengeCard');
+
+  function streakInfo() {
+    let streak = 0;
+    for (let i = 0; i < 400; i++) {
+      const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+      if (localStorage.getItem('logiclab-challenge-' + d) === 'done') streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  function render() {
+    const done = localStorage.getItem('logiclab-challenge-' + todayKey) === 'done';
+    const streak = streakInfo();
+    cardEl.innerHTML = `
+      <span class="challenge-date">${new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' })}</span>
+      <span class="challenge-diff ${challenge.diff}">${challenge.diff}</span>
+      <h3 style="margin-top:.6rem">${challenge.t}</h3>
+      <p class="muted">${challenge.d}</p>
+      <div class="challenge-actions">
+        <a class="btn btn-primary btn-small" href="${challenge.href}">Open simulator →</a>
+        <button class="btn btn-small ${done ? 'btn-ghost' : ''}" id="challengeDoneBtn">${done ? 'Mark as not done' : 'Mark as complete'}</button>
+        ${done ? '<span class="challenge-done-badge">✓ Completed today</span>' : ''}
+      </div>
+      <div class="challenge-streak">
+        <div><span>${streak}</span><span class="muted small">day streak</span></div>
+        <div><span>${CHALLENGE_BANK.length}</span><span class="muted small">challenges in rotation</span></div>
+      </div>`;
+    $('#challengeDoneBtn').addEventListener('click', () => {
+      if (localStorage.getItem('logiclab-challenge-' + todayKey) === 'done') localStorage.removeItem('logiclab-challenge-' + todayKey);
+      else { localStorage.setItem('logiclab-challenge-' + todayKey, 'done'); LL.toast('Nice work — challenge marked complete!'); }
+      render();
+    });
+  }
+  render();
+})();
+
+/* =========================================================
+   13. VLSI / HDL GENERATOR — Verilog for a gate or a full circuit
+   ========================================================= */
+const HdlGenerator = (() => {
+  const sourceSel = $('#hdlSource');
+  const codeEl = $('#hdlCode');
+  const VERILOG_OP = { AND:'&', OR:'|', XOR:'^', NAND:'~&', NOR:'~|', XNOR:'~^' };
+
+  function highlight(code) {
+    return code
+      .replace(/\b(module|endmodule|input|output|wire|assign|always|posedge|begin|end|reg)\b/g, '<span class="hdl-kw">$1</span>')
+      .replace(/(\/\/.*)$/gm, '<span class="hdl-com">$1</span>');
+  }
+
+  function gateVerilog(type) {
+    const g = GATES[type];
+    const ins = g.inputs === 1 ? ['a'] : ['a', 'b'];
+    let body;
+    if (type === 'NOT') body = 'assign y = ~a;';
+    else if (type === 'BUFFER') body = 'assign y = a;';
+    else body = `assign y = ${ins.join(` ${VERILOG_OP[type]} `)};`;
+    return [
+      `// LogicLab — auto-generated Verilog`,
+      `// ${type} gate — ${GATE_DESC[type]}`,
+      `module ${type.toLowerCase()}_gate (`,
+      `  input  wire ${ins.join(', ')},`,
+      `  output wire y`,
+      `);`,
+      ``,
+      `  ${body}`,
+      ``,
+      `endmodule`,
+    ].join('\n');
+  }
+
+  function circuitVerilog() {
+    const { nodes, connections, GATE_FN } = CircuitBuilder.getState();
+    if (!nodes.length) return '// The Circuit Builder canvas is empty — add some gates first.';
+    const inputs = nodes.filter(n => n.type === 'INPUT');
+    const outputs = nodes.filter(n => n.type === 'OUTPUT');
+    const gates = nodes.filter(n => n.type !== 'INPUT' && n.type !== 'OUTPUT');
+    const wireName = id => 'w_' + id;
+    const lines = [];
+    lines.push('// LogicLab — auto-generated Verilog from Circuit Builder');
+    const ports = [...inputs.map(n => `input  wire ${wireName(n.id)}`), ...outputs.map(n => `output wire ${wireName(n.id)}`)];
+    lines.push(`module custom_circuit (`);
+    lines.push('  ' + ports.join(',\n  '));
+    lines.push(');');
+    lines.push('');
+    gates.forEach(n => lines.push(`  wire ${wireName(n.id)}; // ${n.type} gate`));
+    lines.push('');
+    gates.forEach(n => {
+      const inConns = connections.filter(c => c.toNode === n.id).sort((a,b)=>a.toPort-b.toPort);
+      const args = inConns.map(c => wireName(c.fromNode));
+      let expr;
+      if (n.type === 'NOT') expr = `~${args[0] || "1'bz"}`;
+      else if (n.type === 'BUFFER') expr = args[0] || "1'bz";
+      else expr = args.length === 2 ? `${args[0]} ${VERILOG_OP[n.type]} ${args[1]}` : (args[0] || "1'bz");
+      lines.push(`  assign ${wireName(n.id)} = ${expr}; // ${n.type}`);
+    });
+    outputs.forEach(n => {
+      const inConn = connections.find(c => c.toNode === n.id);
+      lines.push(`  assign ${wireName(n.id)} = ${inConn ? wireName(inConn.fromNode) : "1'bz"};`);
+    });
+    lines.push('');
+    lines.push('endmodule');
+    return lines.join('\n');
+  }
+
+  let lastCode = '';
+  $('#hdlGenerate').addEventListener('click', () => {
+    lastCode = sourceSel.value === 'gate' ? gateVerilog(GateSim.getState().current) : circuitVerilog();
+    codeEl.innerHTML = highlight(lastCode);
+  });
+  $('#hdlCopy').addEventListener('click', () => {
+    if (!lastCode) { LL.toast('Generate some Verilog first.'); return; }
+    navigator.clipboard.writeText(lastCode).then(() => LL.toast('Verilog copied to clipboard.')).catch(() => LL.toast('Could not copy — select and copy manually.'));
+  });
+  $('#hdlDownload').addEventListener('click', () => {
+    if (!lastCode) { LL.toast('Generate some Verilog first.'); return; }
+    downloadBlob('logiclab_module.v', lastCode, 'text/plain');
+  });
+})();
+
+/* =========================================================
+   14. ABOUT — author links
+   ========================================================= */
+(function author(){
+  const gh = $('#authorGitHub'), li = $('#authorLinkedIn');
+  if (gh) gh.href = 'https://github.com/invictus127';
+  // LinkedIn URL not yet provided — update the href below once you share it.
+  if (li) li.href = 'https://www.linkedin.com/';
+})();
+
+/* =========================================================
+   15. PWA — SERVICE WORKER REGISTRATION
    ========================================================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

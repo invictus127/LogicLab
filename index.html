@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Originally written by Rishita https://github.com/invictus127 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -15,7 +16,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="dark">
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
 <!-- ================= NAV ================= -->
 <header class="nav-wrap">
   <nav class="navbar" aria-label="Primary">
@@ -53,6 +54,8 @@
       <li><a href="#calculator">Calculator</a></li>
       <li><a href="#learn">Learn</a></li>
       <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#challenge">Challenge</a></li>
+      <li><a href="#hdl">HDL Gen</a></li>
       <li><a href="#about">About</a></li>
     </ul>
 
@@ -117,10 +120,10 @@
     <h2>Logic Gate Simulator</h2>
     <p class="section-sub">Toggle the inputs and watch the LED, truth table and Boolean expression respond live.</p>
   </div>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
   <div class="sim-select-wrap">
     <label for="gateSelect">Choose a logic gate</label>
-    <select id="gateSelect" aria-label="Choose a logic gate"></select>
+    <select id="gateSelect" class="themed-select" aria-label="Choose a logic gate"></select>
   </div>
 
   <div class="glass panel gate-panel">
@@ -153,7 +156,7 @@
     <div class="table-wrap"><table id="truthTable"></table></div>
   </div>
 </section>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
 <!-- ================= K-MAP ================= -->
 <section id="kmap" class="section alt">
   <div class="section-head">
@@ -165,7 +168,7 @@
   <div class="glass panel">
     <div class="kmap-controls">
       <label for="kmapVars">Variables</label>
-      <select id="kmapVars">
+      <select id="kmapVars" class="themed-select">
         <option value="2">2 variables (A, B)</option>
         <option value="3">3 variables (A, B, C)</option>
         <option value="4" selected>4 variables (A, B, C, D)</option>
@@ -198,8 +201,10 @@
 
   <div class="sim-select-wrap">
     <label for="ffSelect">Choose a flip-flop</label>
-    <select id="ffSelect" aria-label="Choose a flip-flop"></select>
+    <select id="ffSelect" class="themed-select" aria-label="Choose a flip-flop"></select>
   </div>
+
+  <div class="glass panel sim-diagram" id="ffDiagram"></div>
 
   <div class="glass panel">
     <div class="ff-layout">
@@ -216,7 +221,7 @@
         <button class="btn btn-primary" id="ffClock">⏱ Clock Pulse</button>
         <button class="btn btn-ghost btn-small" id="ffReset">Reset</button>
       </div>
-    </div> <!-- Originally written by Rishita https://github.com/invictus127 -->
+    </div>
     <div class="table-wrap"><table id="ffTruthTable"></table></div>
     <div class="timing-wrap">
       <h4>Waveform</h4>
@@ -236,8 +241,9 @@
   <div class="two-col">
     <div class="glass panel">
       <div class="panel-head"><h3>Multiplexer</h3>
-        <select id="muxSize"><option value="2">2:1 MUX</option><option value="4" selected>4:1 MUX</option></select>
+        <select id="muxSize" class="themed-select"><option value="2">2:1 MUX</option><option value="4" selected>4:1 MUX</option></select>
       </div>
+      <div class="sim-diagram" id="muxDiagram"></div>
       <div id="muxInputs" class="io-inputs"></div>
       <div id="muxSelects" class="io-inputs"></div>
       <div class="io-output">
@@ -249,8 +255,9 @@
 
     <div class="glass panel">
       <div class="panel-head"><h3>Demultiplexer</h3>
-        <select id="demuxSize"><option value="2">1:2 DEMUX</option><option value="4" selected>1:4 DEMUX</option></select>
+        <select id="demuxSize" class="themed-select"><option value="2">1:2 DEMUX</option><option value="4" selected>1:4 DEMUX</option></select>
       </div>
+      <div class="sim-diagram" id="demuxDiagram"></div>
       <div id="demuxInputs" class="io-inputs"></div>
       <div id="demuxSelects" class="io-inputs"></div>
       <div class="io-output" id="demuxOutputs"></div>
@@ -269,12 +276,14 @@
   <div class="two-col">
     <div class="glass panel">
       <div class="panel-head"><h3>4:2 Encoder</h3></div>
+      <div class="sim-diagram" id="encDiagram"></div>
       <p class="muted small">Activate exactly one input line at a time.</p>
       <div id="encInputs" class="io-inputs"></div>
       <div class="io-output" id="encOutputs"></div>
     </div>
     <div class="glass panel">
       <div class="panel-head"><h3>2:4 Decoder</h3></div>
+      <div class="sim-diagram" id="decDiagram"></div>
       <div id="decInputs" class="io-inputs"></div>
       <div class="io-output" id="decOutputs"></div>
     </div>
@@ -290,6 +299,7 @@
   <div class="two-col">
     <div class="glass panel">
       <div class="panel-head"><h3>Half Adder</h3></div>
+      <div class="sim-diagram" id="haDiagram"></div>
       <div id="haInputs" class="io-inputs"></div>
       <div class="io-output" id="haOutputs"></div>
       <p class="equation">Sum = A ⊕ B &nbsp;·&nbsp; Carry = A · B</p>
@@ -297,6 +307,7 @@
     </div>
     <div class="glass panel">
       <div class="panel-head"><h3>Full Adder</h3></div>
+      <div class="sim-diagram" id="faDiagram"></div>
       <div id="faInputs" class="io-inputs"></div>
       <div class="io-output" id="faOutputs"></div>
       <p class="equation">Sum = A ⊕ B ⊕ Cin &nbsp;·&nbsp; Cout = AB + BCin + ACin</p>
@@ -304,7 +315,7 @@
     </div>
   </div>
 </section>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
 <!-- ================= TIMING / PROPAGATION DELAY ================= -->
 <section id="timing" class="section">
   <div class="section-head">
@@ -316,7 +327,7 @@
   <div class="glass panel">
     <div class="delay-controls">
       <label for="delayGate">Gate</label>
-      <select id="delayGate"></select>
+      <select id="delayGate" class="themed-select"></select>
       <label for="delayNs">Delay</label>
       <input type="range" id="delayNs" min="50" max="1500" step="50" value="400">
       <span id="delayNsLabel">400 ns</span>
@@ -332,9 +343,9 @@
   <div class="section-head">
     <p class="eyebrow">08 — Build Freely</p>
     <h2>Circuit Builder</h2>
-    <p class="section-sub">Drag gates onto the canvas, click a source port then a destination port to wire them, then simulate.</p>
+    <p class="section-sub">Drag gates onto the canvas, then drag from an output port straight to an input port to wire them. Simulation runs continuously with real signal propagation.</p>
   </div>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
   <div class="glass panel circuit-panel">
     <div class="circuit-palette" id="circuitPalette"></div>
     <div class="circuit-toolbar">
@@ -344,11 +355,16 @@
       <button class="btn btn-small btn-ghost" id="circuitExport">Export JSON</button>
       <label class="btn btn-small btn-ghost file-btn">Import JSON<input type="file" id="circuitImport" accept="application/json" hidden></label>
     </div>
+    <div class="circuit-legend">
+      <span><i style="background:var(--sig-1)"></i> Logic 1 (HIGH)</span>
+      <span><i style="background:var(--sig-0)"></i> Logic 0 (LOW)</span>
+      <span><i style="background:var(--sig-unknown)"></i> Unconnected</span>
+    </div>
     <div class="circuit-canvas-wrap">
       <svg id="circuitWires" class="circuit-wires"></svg>
       <div id="circuitCanvas" class="circuit-canvas"></div>
     </div>
-    <p class="muted small" id="circuitHint">Tip: click an output port (right, orange) then an input port (left, blue) to connect them.</p>
+    <p class="muted small" id="circuitHint">Tip: drag from an output port (right, orange) to an input port (left, blue) to connect them.</p>
   </div>
 </section>
 
@@ -366,7 +382,7 @@
 
     <div id="calcConvert" class="calc-body">
       <input type="text" id="calcInput" placeholder="Enter a value…" inputmode="text">
-      <select id="calcInputBase">
+      <select id="calcInputBase" class="themed-select">
         <option value="10">Decimal</option>
         <option value="2">Binary</option>
         <option value="16">Hexadecimal</option>
@@ -377,7 +393,7 @@
 
     <div id="calcArith" class="calc-body" hidden>
       <input type="text" id="arithA" placeholder="Binary A e.g. 1011">
-      <select id="arithOp">
+      <select id="arithOp" class="themed-select">
         <option value="+">+ Add</option>
         <option value="-">− Subtract</option>
         <option value="*">× Multiply</option>
@@ -428,7 +444,43 @@
     </div>
   </div>
 </section>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
+<!-- ================= TODAY'S CHALLENGE ================= -->
+<section id="challenge" class="section alt">
+  <div class="section-head">
+    <p class="eyebrow">12 — Daily Practice</p>
+    <h2>Today's Challenge</h2>
+    <p class="section-sub">A new digital-logic problem every day. Same challenge for everyone, all day — come back tomorrow for the next one.</p>
+  </div>
+  <div class="glass panel challenge-card" id="challengeCard"></div>
+</section>
+
+<!-- ================= HDL GENERATOR ================= -->
+<section id="hdl" class="section">
+  <div class="section-head">
+    <p class="eyebrow">13 — VLSI / HDL</p>
+    <h2>Verilog Code Generator</h2>
+    <p class="section-sub">Turn what you've built into synthesizable Verilog — either the gate currently selected in the Gate Simulator, or your full Circuit Builder design.</p>
+  </div>
+  <div class="glass panel">
+    <div class="hdl-controls">
+      <label for="hdlSource">Source</label>
+      <select id="hdlSource" class="themed-select">
+        <option value="gate">Selected Logic Gate</option>
+        <option value="circuit">Circuit Builder design</option>
+      </select>
+      <button class="btn btn-primary btn-small" id="hdlGenerate">Generate Verilog</button>
+    </div>
+    <div class="hdl-output">
+      <div class="hdl-actions">
+        <button class="btn btn-small btn-ghost" id="hdlCopy">Copy</button>
+        <button class="btn btn-small btn-ghost" id="hdlDownload">Download .v</button>
+      </div>
+      <pre id="hdlCode">// Click "Generate Verilog" to produce a module here.</pre>
+    </div>
+  </div>
+</section>
+
 <!-- ================= ABOUT ================= -->
 <section id="about" class="section alt">
   <div class="section-head">
@@ -437,28 +489,32 @@
   </div>
   <div class="about-grid">
     <div class="glass panel">
-      <h3> Under the hood </h3>
+      <h3>Built for learning by doing</h3>
+      <p class="muted">LogicLab turns first-semester digital electronics theory into something you can click, drag and watch respond in real time — no lab kit, breadboard or backend required. Every simulator runs entirely in your browser and keeps working offline once loaded.</p>
+    </div>
+    <div class="glass panel">
+      <h3>Under the hood</h3>
       <ul class="plain-list">
-       <p class="muted">  LogicLab is built from the ground up on a foundation of pure web technologies—HTML5, CSS3. It uses hand-coded simulators to keep computations fast. Best of all, it works as an installable PWA that functions flawlessly without an internet connection.</p>
-       <li>Semantic HTML5, hand-written CSS3, vanilla ES6 — no frameworks</li>
+        <li>Semantic HTML5, hand-written CSS3, vanilla ES6 — no frameworks</li>
         <li>Quine–McCluskey based K-Map minimizer</li>
-        <li>Custom event-driven circuit evaluation engine</li>
+        <li>Custom event-driven circuit evaluation engine with real signal propagation</li>
         <li>Installable as a Progressive Web App</li>
       </ul>
     </div>
-    <div class="glass panel">
-      <h3> The Developers mark </h3>
-      <ul class="plain-list">
-        <p class="muted">  Built for learning by doing: LogicLab turns digital electronics theory into something you can click, drag and watch respond in real time — no lab kit, breadboard or backend required. Every simulator runs entirely in your browser and keeps working offline once loaded.
-         Want to see more of my work, dive into the underlying logic, or just say hello? <br>
-         Let's connect to collaborate: </p>
-       <li><a href="https://github.com/invictus127" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: bold;"><u>GitHub</u> — Explore the codebase </a></li>
-    <li><a href="https://www.linkedin.com/in/rishitasagajkar/" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: bold;"><u>LinkedIn</u> — Connect with me from here</a></li>
-      </ul>
+    <div class="glass panel author-card">
+      <div class="author-avatar">RS</div>
+      <div>
+        <h3>Rishita Sagajkar</h3>
+        <p class="muted small">Creator &amp; developer of LogicLab.</p>
+        <div class="author-links">
+          <a href="#" id="authorLinkedIn" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="#" id="authorGitHub" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
 </main>
 
 <footer class="footer">
@@ -476,7 +532,7 @@
     <p class="muted small">© 2026 LogicLab. Built for learning purposes.</p>
   </div>
 </footer>
-<!-- Originally written by Rishita https://github.com/invictus127 -->
+
 <script src="script.js"></script>
 </body>
 </html>

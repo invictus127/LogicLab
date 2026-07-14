@@ -18,34 +18,18 @@ An offline-first, installable web app for learning digital electronics by doing:
 - Karnaugh Map solver (2, 3 and 4 variables) that groups adjacent minterms and derives a minimal SOP expression using a **Quine–McCluskey** implementation, with colour-coded prime-implicant groups
 - SR, JK, D and T flip-flop lab with a manual clock, live Q/Q′ state, characteristic truth table and a canvas-drawn timing/waveform diagram
 
-**Signal behaviour**
-- Propagation-delay visualizer — toggle an input and watch the signal animate along the wire before the output LED updates, with an adjustable delay slider
-
 **Build your own**
 - Drag-and-drop Circuit Builder: drag gates onto a canvas, click an output port then an input port to wire them, simulate the whole network, delete nodes/wires, reset, and **export/import circuits as JSON**
 
 **Tools & reference**
 - Binary calculator: decimal ⇄ binary ⇄ hex ⇄ octal conversion, plus binary add/subtract/multiply/divide
 - Learning Center with 13 reference cards (gates, Boolean algebra, truth tables, combinational/sequential circuits, flip-flops, encoders/decoders, MUX/DEMUX, adders, number systems)
-- 15-question randomized quiz with a timer, progress bar, per-question explanations and score summary
+- 15-question randomised quiz with a timer, progress bar, per-question explanations and score summary
 - Instant search across gates, topics and simulators
 - Dark/light theme toggle (persisted with `localStorage`)
 - Fully responsive, keyboard-accessible, installable **PWA** with offline support via a service worker
 
----
 
-## 📸 Screenshots
-
-_Add screenshots or a short GIF walkthrough here once deployed, e.g.:_
-
-```
-/screenshots/hero.png
-/screenshots/gates.png
-/screenshots/kmap.png
-/screenshots/circuit-builder.png
-```
-
----
 
 ## 🗂 Folder Structure
 
@@ -114,9 +98,9 @@ Visit the app, then use your browser's "Install App" option to add LogicLab to y
 MIT License — free to use, modify and share for learning or portfolio purposes.
 
 ## 👤 Author
-
-Built as a digital electronics learning project. Replace this section with your name, portfolio link and contact details before publishing.
-
+Built by Rishita Sagajkar 
+https://www.linkedin.com/in/rishitasagajkar/
+https://github.com/invictus127
 ---
 
 ## 🧳 Resume-Ready Content

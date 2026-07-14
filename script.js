@@ -1518,15 +1518,6 @@ const HdlGenerator = (() => {
 })();
 
 /* =========================================================
-   12. ABOUT / DEVELOPER'S MARK
-   ========================================================= */
-(function author(){
-  // Portfolio URL not yet provided — update the href below once you share it.
-  const pf = $('#authorPortfolio');
-  if (pf) pf.href = '#';
-})();
-
-/* =========================================================
    13. PWA — SERVICE WORKER REGISTRATION
    ========================================================= */
 if ('serviceWorker' in navigator) {

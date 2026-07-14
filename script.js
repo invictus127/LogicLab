@@ -1,6 +1,6 @@
 /* =========================================================
    LogicLab — script.js
-   Vanilla ES6. No frameworks, no build step.
+   Vanilla ES6. No frameworks, no build step. Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 'use strict';
 
@@ -80,7 +80,7 @@ const bit = v => (v ? 1 : 0);
   });
   document.addEventListener('click', e => { if (!e.target.closest('.nav-search')) results.hidden = true; });
 
-  // Nav bar reacts to scroll for a more polished top panel
+  // Nav bar reacts to scroll for a more polished top panel Originally written by Rishita https://github.com/invictus127 
   const navbar = $('.navbar');
   let navTicking = false;
   window.addEventListener('scroll', () => {
@@ -186,7 +186,7 @@ function makeLedField(labelText, initial) {
 }
 
 /* =========================================================
-   1. LOGIC GATE SIMULATOR
+   1. LOGIC GATE SIMULATOR Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 const GATES = {
   AND:    { inputs: 2, fn: (a,b) => a & b,              expr: 'A · B' },
@@ -341,7 +341,7 @@ function downloadBlob(filename, content, type) {
 }
 
 /* =========================================================
-   2. K-MAP SOLVER (Quine–McCluskey)
+   2. K-MAP SOLVER (Quine–McCluskey) Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 const KMap = (() => {
   let n = 4;
@@ -601,7 +601,7 @@ const FlipFlopLab = (() => {
 })();
 
 /* =========================================================
-   4. MUX / DEMUX
+   4. MUX / DEMUX Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 const MuxDemux = (() => {
   let muxSize = 4, demuxSize = 4;
@@ -1151,7 +1151,7 @@ const CircuitBuilder = (() => {
 })();
 
 /* =========================================================
-   8. BINARY CALCULATOR
+   8. BINARY CALCULATOR Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 const Calculator = (() => {
   $$('.calc-tab').forEach(tab => tab.addEventListener('click', () => {
@@ -1518,7 +1518,7 @@ const HdlGenerator = (() => {
 })();
 
 /* =========================================================
-   13. PWA — SERVICE WORKER REGISTRATION
+   13. PWA — SERVICE WORKER REGISTRATION Originally written by Rishita https://github.com/invictus127 
    ========================================================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
